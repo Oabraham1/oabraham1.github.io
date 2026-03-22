@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The WAVE Specification — Wide Architecture Virtual Encoding</title>
+    <meta name="description" content="WAVE (Wide Architecture Virtual Encoding) is a vendor-neutral instruction set architecture for general-purpose GPU computation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230a0e14'/%3E%3Cpath d='M14 18h36v28H14z' fill='%23111922' stroke='%2300d4aa' stroke-width='2'/%3E%3Cpath d='M20 28l6 6-6 6' fill='none' stroke='%2300d4aa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M32 40h10' stroke='%230ea5e9' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+        /* ========================================
+           CSS CUSTOM PROPERTIES
+           ======================================== */
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-surface: #111922;
+            --bg-surface-hover: #1a2332;
+            --border-default: #1e2d3d;
+            --text-primary: #e0e6ed;
+            --text-secondary: #7a8a9e;
+            --text-tertiary: #4a5568;
+            --accent: #00d4aa;
+            --accent-dim: rgba(0, 212, 170, 0.2);
+            --accent-secondary: #0ea5e9;
+            --syntax-keyword: #c792ea;
+            --syntax-string: #c3e88d;
+            --syntax-function: #82aaff;
+            --syntax-comment: #546e7a;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'IBM Plex Sans', sans-serif;
+            --content-width: 800px;
+            --sidebar-width: 280px;
+            --nav-height: 56px;
+        }
+
+        /* ========================================
+           RESET & BASE STYLES
+           ======================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--nav-height) + 2rem);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* ========================================
+           TOP NAVIGATION
+           ======================================== */
+        .spec-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--nav-height);
+            padding: 0 2rem;
+            background: rgba(10, 14, 20, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .spec-nav-back {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spec-nav-back:hover {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .spec-nav-title {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+        }
+
+        .mobile-toc-toggle {
+            display: none;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* ========================================
+           LAYOUT
+           ======================================== */
+        .spec-layout {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+            min-height: 100vh;
+            padding-top: var(--nav-height);
+        }
+
+        /* ========================================
+           SIDEBAR
+           ======================================== */
+        .spec-sidebar {
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--nav-height));
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid var(--border-default);
+            background: var(--bg-primary);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 0.35rem 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-left: 2px solid transparent;
+            margin-left: -0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .toc-link:hover {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .toc-link.active {
+            color: var(--accent);
+            border-left-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .toc-link .toc-number {
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        .toc-sub {
+            padding-left: 1rem;
+        }
+
+        .toc-sub .toc-link {
+            font-size: 0.75rem;
+        }
+
+        /* ========================================
+           MAIN CONTENT
+           ======================================== */
+        .spec-content {
+            grid-column: 2;
+            max-width: var(--content-width);
+            margin: 0 auto;
+            padding: 3rem 2rem 6rem;
+        }
+
+        /* Document Header */
+        .spec-header {
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .spec-title {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-subtitle {
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .spec-meta {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .spec-meta-label {
+            color: var(--text-secondary);
+        }
+
+        .spec-meta-value {
+            color: var(--text-tertiary);
+        }
+
+        /* Section Headings */
+        .section-heading {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            scroll-margin-top: calc(var(--nav-height) + 2rem);
+        }
+
+        h2.section-heading {
+            font-size: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        h3.section-heading {
+            font-size: 1.2rem;
+        }
+
+        h4.section-heading {
+            font-size: 1rem;
+        }
+
+        .section-number {
+            color: var(--accent);
+            margin-right: 0.75rem;
+        }
+
+        /* Body Text */
+        .spec-content p {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .spec-content ul, .spec-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .spec-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* RFC Keywords */
+        .rfc-keyword {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            background: var(--accent-dim);
+            padding: 0.1em 0.4em;
+            border-radius: 3px;
+        }
+
+        /* Inline Code */
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            color: var(--accent);
+            background: rgba(0, 212, 170, 0.1);
+            padding: 0.15em 0.4em;
+            border-radius: 3px;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-secondary);
+        }
+
+        /* Tables */
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .spec-table th {
+            background: var(--bg-surface);
+            font-family: var(--font-mono);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-default);
+            color: var(--text-primary);
+        }
+
+        .spec-table td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-default);
+            vertical-align: top;
+        }
+
+        .spec-table tr:nth-child(even) {
+            background: rgba(17, 25, 34, 0.4);
+        }
+
+        .spec-table code {
+            font-size: 0.85em;
+        }
+
+        /* Blockquote for defensive publication */
+        .defensive-publication {
+            border-left: 3px solid var(--accent);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 1024px) {
+            .spec-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .spec-sidebar {
+                position: fixed;
+                top: var(--nav-height);
+                left: -100%;
+                width: 280px;
+                z-index: 999;
+                transition: left 0.3s ease;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .spec-sidebar.open {
+                left: 0;
+            }
+
+            .mobile-toc-toggle {
+                display: block;
+            }
+
+            .spec-content {
+                grid-column: 1;
+                padding: 2rem 1rem 4rem;
+            }
+
+            .spec-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* ========================================
+           PRINT STYLES
+           ======================================== */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .spec-nav,
+            .spec-sidebar,
+            .mobile-toc-toggle {
+                display: none !important;
+            }
+
+            .spec-layout {
+                display: block;
+            }
+
+            .spec-content {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .section-heading {
+                color: black;
+            }
+
+            .section-number {
+                color: #006644;
+            }
+
+            code {
+                background: #f0f0f0;
+                color: #006644;
+            }
+
+            pre {
+                background: #f8f8f8;
+                border: 1px solid #ccc;
+            }
+
+            .spec-table th {
+                background: #f0f0f0;
+            }
+
+            .rfc-keyword {
+                background: #e0f0e8;
+            }
+
+            a {
+                color: #006644;
+            }
+
+            .defensive-publication {
+                border-left-color: #006644;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="spec-nav">
+        <a href="index.html" class="spec-nav-back">← Back to ojima.me</a>
+        <span class="spec-nav-title">WAVE Specification v0.1</span>
+        <button class="mobile-toc-toggle" onclick="toggleSidebar()">Contents</button>
+    </nav>
+
+    <div class="spec-layout">
+        <!-- Sidebar Table of Contents -->
+        <aside class="spec-sidebar" id="sidebar">
+            <h2 class="sidebar-title">Table of Contents</h2>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#section-0" class="toc-link"><span class="toc-number">0.</span>Conformance Language</a></li>
+                <li class="toc-item"><a href="#section-1" class="toc-link"><span class="toc-number">1.</span>Introduction</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-1-1" class="toc-link"><span class="toc-number">1.1</span>Purpose</a></li>
+                    <li class="toc-item"><a href="#section-1-2" class="toc-link"><span class="toc-number">1.2</span>Scope</a></li>
+                    <li class="toc-item"><a href="#section-1-3" class="toc-link"><span class="toc-number">1.3</span>Design Principles</a></li>
+                    <li class="toc-item"><a href="#section-1-4" class="toc-link"><span class="toc-number">1.4</span>Relationship to Other Standards</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-2" class="toc-link"><span class="toc-number">2.</span>Execution Model</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-2-1" class="toc-link"><span class="toc-number">2.1</span>Overview</a></li>
+                    <li class="toc-item"><a href="#section-2-2" class="toc-link"><span class="toc-number">2.2</span>Thread Hierarchy</a></li>
+                    <li class="toc-item"><a href="#section-2-3" class="toc-link"><span class="toc-number">2.3</span>Thread Identifiers</a></li>
+                    <li class="toc-item"><a href="#section-2-4" class="toc-link"><span class="toc-number">2.4</span>Core Resources</a></li>
+                    <li class="toc-item"><a href="#section-2-5" class="toc-link"><span class="toc-number">2.5</span>Execution Guarantees</a></li>
+                    <li class="toc-item"><a href="#section-2-6" class="toc-link"><span class="toc-number">2.6</span>Dispatch</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-3" class="toc-link"><span class="toc-number">3.</span>Register Model</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-3-1" class="toc-link"><span class="toc-number">3.1</span>General-Purpose Registers</a></li>
+                    <li class="toc-item"><a href="#section-3-2" class="toc-link"><span class="toc-number">3.2</span>Sub-Register Access</a></li>
+                    <li class="toc-item"><a href="#section-3-3" class="toc-link"><span class="toc-number">3.3</span>Register Pairs</a></li>
+                    <li class="toc-item"><a href="#section-3-4" class="toc-link"><span class="toc-number">3.4</span>Special Registers</a></li>
+                    <li class="toc-item"><a href="#section-3-5" class="toc-link"><span class="toc-number">3.5</span>Predicate Registers</a></li>
+                    <li class="toc-item"><a href="#section-3-6" class="toc-link"><span class="toc-number">3.6</span>Allocation and Occupancy</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-4" class="toc-link"><span class="toc-number">4.</span>Memory Model</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-4-1" class="toc-link"><span class="toc-number">4.1</span>Memory Spaces</a></li>
+                    <li class="toc-item"><a href="#section-4-2" class="toc-link"><span class="toc-number">4.2</span>Local Memory Details</a></li>
+                    <li class="toc-item"><a href="#section-4-3" class="toc-link"><span class="toc-number">4.3</span>Device Memory Details</a></li>
+                    <li class="toc-item"><a href="#section-4-4" class="toc-link"><span class="toc-number">4.4</span>Memory Ordering</a></li>
+                    <li class="toc-item"><a href="#section-4-5" class="toc-link"><span class="toc-number">4.5</span>Atomic Operations</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-5" class="toc-link"><span class="toc-number">5.</span>Control Flow</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-5-1" class="toc-link"><span class="toc-number">5.1</span>Structured Control Flow</a></li>
+                    <li class="toc-item"><a href="#section-5-2" class="toc-link"><span class="toc-number">5.2</span>Uniform Branches</a></li>
+                    <li class="toc-item"><a href="#section-5-3" class="toc-link"><span class="toc-number">5.3</span>Divergence and Reconvergence</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-6" class="toc-link"><span class="toc-number">6.</span>Instruction Set</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-6-1" class="toc-link"><span class="toc-number">6.1</span>Instruction Format</a></li>
+                    <li class="toc-item"><a href="#section-6-2" class="toc-link"><span class="toc-number">6.2</span>Integer Arithmetic</a></li>
+                    <li class="toc-item"><a href="#section-6-3" class="toc-link"><span class="toc-number">6.3</span>Bitwise Operations</a></li>
+                    <li class="toc-item"><a href="#section-6-4" class="toc-link"><span class="toc-number">6.4</span>Floating-Point (F32)</a></li>
+                    <li class="toc-item"><a href="#section-6-5" class="toc-link"><span class="toc-number">6.5</span>Floating-Point (F16)</a></li>
+                    <li class="toc-item"><a href="#section-6-6" class="toc-link"><span class="toc-number">6.6</span>Floating-Point (F64)</a></li>
+                    <li class="toc-item"><a href="#section-6-7" class="toc-link"><span class="toc-number">6.7</span>Type Conversion</a></li>
+                    <li class="toc-item"><a href="#section-6-8" class="toc-link"><span class="toc-number">6.8</span>Comparison and Select</a></li>
+                    <li class="toc-item"><a href="#section-6-9" class="toc-link"><span class="toc-number">6.9</span>Memory Operations</a></li>
+                    <li class="toc-item"><a href="#section-6-10" class="toc-link"><span class="toc-number">6.10</span>Atomic Operations</a></li>
+                    <li class="toc-item"><a href="#section-6-11" class="toc-link"><span class="toc-number">6.11</span>Wave Operations</a></li>
+                    <li class="toc-item"><a href="#section-6-12" class="toc-link"><span class="toc-number">6.12</span>Synchronization</a></li>
+                    <li class="toc-item"><a href="#section-6-13" class="toc-link"><span class="toc-number">6.13</span>Control Flow Instructions</a></li>
+                    <li class="toc-item"><a href="#section-6-14" class="toc-link"><span class="toc-number">6.14</span>Matrix MMA (Optional)</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-7" class="toc-link"><span class="toc-number">7.</span>Capability System</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-7-1" class="toc-link"><span class="toc-number">7.1</span>Required Constants</a></li>
+                    <li class="toc-item"><a href="#section-7-2" class="toc-link"><span class="toc-number">7.2</span>Optional Capabilities</a></li>
+                    <li class="toc-item"><a href="#section-7-3" class="toc-link"><span class="toc-number">7.3</span>MMA Parameters</a></li>
+                    <li class="toc-item"><a href="#section-7-4" class="toc-link"><span class="toc-number">7.4</span>Query Mechanism</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-8" class="toc-link"><span class="toc-number">8.</span>Binary Encoding</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-8-1" class="toc-link"><span class="toc-number">8.1</span>Base Format (32-bit)</a></li>
+                    <li class="toc-item"><a href="#section-8-2" class="toc-link"><span class="toc-number">8.2</span>Extended Format (64-bit)</a></li>
+                    <li class="toc-item"><a href="#section-8-3" class="toc-link"><span class="toc-number">8.3</span>Opcode Map</a></li>
+                </ul>
+                <li class="toc-item"><a href="#section-9" class="toc-link"><span class="toc-number">9.</span>Conformance</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#section-9-1" class="toc-link"><span class="toc-number">9.1</span>Required Behavior</a></li>
+                    <li class="toc-item"><a href="#section-9-2" class="toc-link"><span class="toc-number">9.2</span>Implementation-Defined</a></li>
+                    <li class="toc-item"><a href="#section-9-3" class="toc-link"><span class="toc-number">9.3</span>Undefined Behavior</a></li>
+                    <li class="toc-item"><a href="#section-9-4" class="toc-link"><span class="toc-number">9.4</span>Conformance Testing</a></li>
+                </ul>
+                <li class="toc-item"><a href="#appendix-a" class="toc-link"><span class="toc-number">A.</span>Full Opcode Table</a></li>
+                <li class="toc-item"><a href="#appendix-b" class="toc-link"><span class="toc-number">B.</span>Vendor Mapping</a></li>
+                <li class="toc-item"><a href="#appendix-c" class="toc-link"><span class="toc-number">C.</span>Revision History</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Specification Content -->
+        <main class="spec-content">
+            <!-- Document Header -->
+            <header class="spec-header">
+                <h1 class="spec-title">The WAVE Specification</h1>
+                <p class="spec-subtitle">Wide Architecture Virtual Encoding</p>
+                <div class="spec-meta">
+                    <div><span class="spec-meta-label">Version:</span> <span class="spec-meta-value">0.1 (Working Draft)</span></div>
+                    <div><span class="spec-meta-label">Authors:</span> <span class="spec-meta-value">Ojima Abraham (Franklin & Marshall College), Onyinye Okoli (Cornell University)</span></div>
+                    <div><span class="spec-meta-label">Date:</span> <span class="spec-meta-value">March 22, 2026</span></div>
+                    <div><span class="spec-meta-label">License:</span> <span class="spec-meta-value">Apache 2.0</span></div>
+                </div>
+            </header>
+
+            <!-- Section 0: Conformance Language -->
+            <h2 id="section-0" class="section-heading"><span class="section-number">0.</span>Conformance Language</h2>
+            <p>The key words <span class="rfc-keyword">MUST</span>, <span class="rfc-keyword">MUST NOT</span>, <span class="rfc-keyword">REQUIRED</span>, <span class="rfc-keyword">SHALL</span>, <span class="rfc-keyword">SHALL NOT</span>, <span class="rfc-keyword">SHOULD</span>, <span class="rfc-keyword">SHOULD NOT</span>, <span class="rfc-keyword">RECOMMENDED</span>, <span class="rfc-keyword">MAY</span>, and <span class="rfc-keyword">OPTIONAL</span> in this document are to be interpreted as described in RFC 2119.</p>
+
+            <!-- Section 1: Introduction -->
+            <h2 id="section-1" class="section-heading"><span class="section-number">1.</span>Introduction</h2>
+
+            <h3 id="section-1-1" class="section-heading"><span class="section-number">1.1</span>Purpose</h3>
+            <p>This specification defines WAVE (Wide Architecture Virtual Encoding), a vendor-neutral instruction set architecture for general-purpose GPU computation. It specifies an abstract execution model, a register model, a memory model, structured control flow semantics, an instruction set, and a capability query system.</p>
+            <p>The specification follows the thin abstraction principle: it defines what a compliant implementation <span class="rfc-keyword">MUST</span> be able to do, not how it must do it. Implementations <span class="rfc-keyword">MAY</span> use any microarchitectural technique to achieve compliance.</p>
+
+            <h3 id="section-1-2" class="section-heading"><span class="section-number">1.2</span>Scope</h3>
+            <p>This specification covers general-purpose compute workloads. Graphics pipeline operations (rasterization, tessellation, pixel export, ray tracing) are out of scope and <span class="rfc-keyword">MAY</span> be addressed by future extensions.</p>
+
+            <h3 id="section-1-3" class="section-heading"><span class="section-number">1.3</span>Design Principles</h3>
+            <ol>
+                <li><strong>Thin abstraction.</strong> Every requirement traces to a hardware-invariant primitive observed across all four major GPU vendors. No requirement is imposed for software convenience alone.</li>
+                <li><strong>Queryable parameters.</strong> Values that differ across implementations (wave width, register count, scratchpad size) are exposed as queryable constants, not fixed in the specification.</li>
+                <li><strong>Structured divergence.</strong> The specification defines control flow semantics but not divergence mechanisms. Implementations are free to use any technique (execution masks, predication, hardware stacks, per-thread program counters) to achieve the specified behavior.</li>
+                <li><strong>Mandatory minimums.</strong> Every queryable parameter has a minimum value. A compliant implementation <span class="rfc-keyword">MUST</span> meet or exceed all minimums.</li>
+            </ol>
+
+            <h3 id="section-1-4" class="section-heading"><span class="section-number">1.4</span>Relationship to Other Standards</h3>
+            <p>This specification is complementary to existing standards. SPIR-V <span class="rfc-keyword">MAY</span> be used as a distribution format for programs targeting this ISA. OpenCL and Vulkan <span class="rfc-keyword">MAY</span> serve as host APIs for dispatching workloads. The distinction is that this specification defines the hardware execution model, while existing standards define host-device interaction.</p>
+
+            <!-- Section 2: Execution Model -->
+            <h2 id="section-2" class="section-heading"><span class="section-number">2.</span>Execution Model</h2>
+
+            <h3 id="section-2-1" class="section-heading"><span class="section-number">2.1</span>Overview</h3>
+            <p>A compliant processor consists of one or more Cores. Each Core is an independent compute unit capable of executing multiple Workgroups concurrently. Cores are not addressable by software. The hardware assigns Workgroups to Cores, and the programmer <span class="rfc-keyword">MUST NOT</span> assume any particular mapping.</p>
+
+            <h3 id="section-2-2" class="section-heading"><span class="section-number">2.2</span>Thread Hierarchy</h3>
+            <p>The execution model defines four levels, three mandatory and one optional:</p>
+
+            <p><strong>Level 0: Thread.</strong> The smallest unit of execution. A Thread has a private register file, a scalar program counter, and a position within the hierarchy identified by hardware-populated identity values. A Thread executes a sequential stream of instructions.</p>
+
+            <p><strong>Level 1: Wave.</strong> A group of exactly W Threads that execute a single instruction simultaneously, where W is a hardware constant queryable at compile time. All Threads in a Wave share a program counter for the purpose of instruction fetch. When Threads in a Wave disagree on a branch condition, the implementation <span class="rfc-keyword">MUST</span> ensure that both paths execute with inactive Threads producing no architectural side effects. The mechanism by which this is achieved is not specified.</p>
+            <p>A Wave is the fundamental scheduling unit. The hardware scheduler operates on Waves, not individual Threads.</p>
+
+            <p><strong>Level 2: Workgroup.</strong> A group of one or more Waves, containing up to MAX_WORKGROUP_SIZE Threads. All Waves in a Workgroup execute on the same Core, share access to Local Memory, and may synchronize via Barriers.</p>
+            <p>The number of Waves per Workgroup is <code>ceil(workgroup_thread_count / W)</code>.</p>
+            <p>Workgroup dimensions are specified at dispatch time as a 3-dimensional size (x, y, z) where <code>x * y * z &lt;= MAX_WORKGROUP_SIZE</code>.</p>
+
+            <p><strong>Level 3: Grid.</strong> The complete dispatch of Workgroups. A Grid is specified as a 3-dimensional count of Workgroups. Workgroups within a Grid <span class="rfc-keyword">MAY</span> execute in any order, on any Core, at any time. No synchronization is available between Workgroups within a single Grid dispatch.</p>
+
+            <p><strong>Level 2.5 (Optional): Cluster.</strong> A group of Workgroups guaranteed to execute concurrently on adjacent Cores with access to each other's Local Memory. The Cluster size is queryable via CLUSTER_SIZE. If the implementation does not support Clusters, CLUSTER_SIZE is 1 and Cluster-scope operations behave identically to Workgroup-scope operations.</p>
+
+            <h3 id="section-2-3" class="section-heading"><span class="section-number">2.3</span>Thread Identifiers</h3>
+            <p>Every Thread has the following hardware-populated, read-only values available as special registers:</p>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>thread_id.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Thread position within Workgroup (3D)</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave_id</code></td>
+                        <td>uint32</td>
+                        <td>Wave index within Workgroup</td>
+                    </tr>
+                    <tr>
+                        <td><code>lane_id</code></td>
+                        <td>uint32</td>
+                        <td>Thread position within Wave (0 to W-1)</td>
+                    </tr>
+                    <tr>
+                        <td><code>workgroup_id.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Workgroup position within Grid (3D)</td>
+                    </tr>
+                    <tr>
+                        <td><code>workgroup_size.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Workgroup dimensions</td>
+                    </tr>
+                    <tr>
+                        <td><code>grid_size.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Grid dimensions (in Workgroups)</td>
+                    </tr>
+                    <tr>
+                        <td><code>num_waves</code></td>
+                        <td>uint32</td>
+                        <td>Number of Waves in this Workgroup</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="section-2-4" class="section-heading"><span class="section-number">2.4</span>Core Resources</h3>
+            <p>Each Core provides the following resources:</p>
+
+            <p><strong>Register File.</strong> A fixed-size on-chip storage of F bytes, partitioned among all simultaneously resident Threads. Each Thread receives R registers (declared at compile time). The maximum number of simultaneously resident Waves is bounded by:</p>
+            <pre><code>max_resident_waves = floor(F / (R * W * 4))</code></pre>
+            <p>where 4 is the register width in bytes (32 bits). This is the occupancy equation. Implementations <span class="rfc-keyword">MUST</span> support at least MIN_MAX_REGISTERS registers per Thread.</p>
+
+            <p><strong>Local Memory.</strong> A fixed-size on-chip scratchpad of S bytes, shared among all Waves in the same Workgroup. Local Memory is explicitly addressed via load and store instructions. There is no automatic caching or data placement. Local Memory contents are undefined at Workgroup start and are not preserved across Workgroup boundaries. Implementations <span class="rfc-keyword">MUST</span> provide at least MIN_LOCAL_MEMORY_SIZE bytes.</p>
+
+            <p><strong>Hardware Scheduler.</strong> Selects a ready Wave for execution each cycle. When a Wave stalls on a memory access, barrier, or other long-latency operation, the scheduler <span class="rfc-keyword">MUST</span> be able to select another resident Wave without software-visible overhead. The scheduling policy is implementation-defined.</p>
+
+            <h3 id="section-2-5" class="section-heading"><span class="section-number">2.5</span>Execution Guarantees</h3>
+            <ol>
+                <li>All Threads in a Wave execute the same instruction in the same cycle, or appear to from the programmer's perspective.</li>
+                <li>Within a Wave, instruction execution is in program order.</li>
+                <li>Between Waves in the same Workgroup, no execution order is guaranteed unless explicitly synchronized via Barriers or memory ordering operations.</li>
+                <li>Between Workgroups, no execution order is guaranteed. Period.</li>
+                <li>A Workgroup that uses Local Memory or Barriers <span class="rfc-keyword">MUST</span> have all its Waves resident on a single Core simultaneously.</li>
+                <li>The implementation <span class="rfc-keyword">MUST</span> guarantee forward progress for at least one Wave per Core at all times (no deadlock from scheduling).</li>
+                <li>A Wave that has been dispatched <span class="rfc-keyword">MUST</span> eventually complete, assuming the program terminates (no starvation).</li>
+            </ol>
+
+            <h3 id="section-2-6" class="section-heading"><span class="section-number">2.6</span>Dispatch</h3>
+            <p>A dispatch operation launches a Grid of Workgroups. The dispatch specifies:</p>
+            <ul>
+                <li>The kernel (program entry point)</li>
+                <li>Grid dimensions</li>
+                <li>Workgroup dimensions</li>
+                <li>Register count per Thread (R)</li>
+                <li>Local Memory size required (in bytes)</li>
+                <li>Kernel arguments (buffer addresses, constants)</li>
+            </ul>
+            <p>The implementation <span class="rfc-keyword">MUST</span> reject a dispatch if the requested resources exceed Core capacity.</p>
+
+            <!-- Section 3: Register Model -->
+            <h2 id="section-3" class="section-heading"><span class="section-number">3.</span>Register Model</h2>
+
+            <h3 id="section-3-1" class="section-heading"><span class="section-number">3.1</span>General-Purpose Registers</h3>
+            <p>Each Thread has access to R general-purpose registers, where R is declared at compile time and <span class="rfc-keyword">MUST NOT</span> exceed MAX_REGISTERS. Registers are 32 bits wide. They are untyped at the hardware level; the instruction determines how the register contents are interpreted (integer, float, bitfield). Registers are named <code>r0</code> through <code>r{R-1}</code>.</p>
+
+            <h3 id="section-3-2" class="section-heading"><span class="section-number">3.2</span>Sub-Register Access</h3>
+            <p>Each 32-bit register <span class="rfc-keyword">MAY</span> be accessed as two 16-bit halves: <code>r{N}.lo</code> (bits [15:0]) and <code>r{N}.hi</code> (bits [31:16]). This enables efficient F16 and BF16 operations without consuming additional registers.</p>
+
+            <h3 id="section-3-3" class="section-heading"><span class="section-number">3.3</span>Register Pairs</h3>
+            <p>Two consecutive registers <span class="rfc-keyword">MAY</span> be used as a 64-bit value: <code>r{N}:r{N+1}</code> with <code>r{N}</code> as the low 32 bits. This is used for F64 operations (where supported) and 64-bit integer operations.</p>
+
+            <h3 id="section-3-4" class="section-heading"><span class="section-number">3.4</span>Special Registers</h3>
+            <p>Hardware-populated read-only registers for thread identity:</p>
+            <ul>
+                <li><code>sr_thread_id_x</code>, <code>sr_thread_id_y</code>, <code>sr_thread_id_z</code></li>
+                <li><code>sr_wave_id</code>, <code>sr_lane_id</code></li>
+                <li><code>sr_workgroup_id_x</code>, <code>sr_workgroup_id_y</code>, <code>sr_workgroup_id_z</code></li>
+                <li><code>sr_workgroup_size_x</code>, <code>sr_workgroup_size_y</code>, <code>sr_workgroup_size_z</code></li>
+                <li><code>sr_grid_size_x</code>, <code>sr_grid_size_y</code>, <code>sr_grid_size_z</code></li>
+                <li><code>sr_wave_width</code>, <code>sr_num_waves</code></li>
+            </ul>
+
+            <h3 id="section-3-5" class="section-heading"><span class="section-number">3.5</span>Predicate Registers</h3>
+            <p>The implementation <span class="rfc-keyword">MUST</span> provide at least 4 predicate registers (<code>p0</code> through <code>p3</code>), each 1 bit wide per Thread. Predicates are set by comparison instructions and consumed by conditional branch instructions.</p>
+
+            <h3 id="section-3-6" class="section-heading"><span class="section-number">3.6</span>Allocation and Occupancy</h3>
+            <p>The register count R is declared per-kernel at compile time. The implementation allocates R registers per Thread for all Threads in all resident Waves. The occupancy equation determines how many Waves can be resident simultaneously. Compilers <span class="rfc-keyword">SHOULD</span> minimize R to maximize occupancy.</p>
+
+            <!-- Section 4: Memory Model -->
+            <h2 id="section-4" class="section-heading"><span class="section-number">4.</span>Memory Model</h2>
+
+            <h3 id="section-4-1" class="section-heading"><span class="section-number">4.1</span>Memory Spaces</h3>
+            <p>Three mandatory memory spaces:</p>
+            <ul>
+                <li><strong>Register Memory:</strong> Per-Thread, on-chip, single-cycle, not addressable</li>
+                <li><strong>Local Memory:</strong> Per-Workgroup, on-chip, explicitly addressed, size S</li>
+                <li><strong>Device Memory:</strong> Global, off-chip or unified, cached by hardware-managed caches, persistent across dispatches</li>
+            </ul>
+
+            <h3 id="section-4-2" class="section-heading"><span class="section-number">4.2</span>Local Memory Details</h3>
+            <p>Local Memory is organized as a flat byte-addressable array of S bytes. The base address is 0. Addresses outside [0, S) produce undefined behavior.</p>
+            <p>Local Memory is banked. When multiple Threads in a Wave access the same bank in the same cycle, a bank conflict <span class="rfc-keyword">MAY</span> occur. Accesses to the same address within a bank (broadcast) <span class="rfc-keyword">MUST NOT</span> cause a conflict.</p>
+            <p>Supports access widths of 8, 16, 32, and 64 bits.</p>
+
+            <h3 id="section-4-3" class="section-heading"><span class="section-number">4.3</span>Device Memory Details</h3>
+            <p>Device Memory is byte-addressable with a 64-bit virtual address space. The implementation <span class="rfc-keyword">MUST</span> support aligned loads and stores of 8, 16, 32, 64, and 128 bits. Coalescing of contiguous accesses is implementation-defined. Cache hierarchy is transparent to the ISA.</p>
+
+            <h3 id="section-4-4" class="section-heading"><span class="section-number">4.4</span>Memory Ordering</h3>
+            <p>Default ordering is relaxed. Ordering is achieved through scoped fence operations at four scopes:</p>
+            <ul>
+                <li><code>scope_wave</code></li>
+                <li><code>scope_workgroup</code></li>
+                <li><code>scope_device</code></li>
+                <li><code>scope_system</code></li>
+            </ul>
+            <p>Fence semantics:</p>
+            <ul>
+                <li><code>fence_acquire(scope)</code> ensures subsequent loads see values at least as recent as those visible at the scope</li>
+                <li><code>fence_release(scope)</code> ensures prior stores are visible at the scope</li>
+                <li><code>fence_acq_rel(scope)</code> combines both</li>
+            </ul>
+            <p>Store-to-load ordering within a Thread is always guaranteed.</p>
+
+            <h3 id="section-4-5" class="section-heading"><span class="section-number">4.5</span>Atomic Operations</h3>
+            <p>Atomic operations perform indivisible read-modify-write sequences on Local Memory and Device Memory. Required operations:</p>
+            <ul>
+                <li><code>atomic_add</code> (i32, u32, f32)</li>
+                <li><code>atomic_sub</code> (i32, u32)</li>
+                <li><code>atomic_min</code> (i32, u32)</li>
+                <li><code>atomic_max</code> (i32, u32)</li>
+                <li><code>atomic_and</code> (u32)</li>
+                <li><code>atomic_or</code> (u32)</li>
+                <li><code>atomic_xor</code> (u32)</li>
+                <li><code>atomic_exchange</code> (u32)</li>
+                <li><code>atomic_compare_swap</code> (u32)</li>
+            </ul>
+            <p>Each takes a scope parameter. 64-bit atomics are <span class="rfc-keyword">OPTIONAL</span>.</p>
+
+            <!-- Section 5: Control Flow -->
+            <h2 id="section-5" class="section-heading"><span class="section-number">5.</span>Control Flow</h2>
+
+            <h3 id="section-5-1" class="section-heading"><span class="section-number">5.1</span>Structured Control Flow</h3>
+            <p>All control flow <span class="rfc-keyword">MUST</span> be expressible through structured primitives:</p>
+            <ul>
+                <li><code>if/else/endif</code> for conditionals</li>
+                <li><code>loop/break/continue/endloop</code> for loops</li>
+                <li><code>call/return</code> for functions</li>
+            </ul>
+            <p>The implementation <span class="rfc-keyword">MUST NOT</span> require the programmer to manage divergence masks. When Threads in a Wave diverge, both paths execute with inactive Threads producing no side effects. After <code>endif</code>, all originally active Threads are active again.</p>
+
+            <h3 id="section-5-2" class="section-heading"><span class="section-number">5.2</span>Uniform Branches</h3>
+            <p>If all Threads in a Wave evaluate a branch identically (uniform), the implementation <span class="rfc-keyword">SHOULD</span> avoid executing the not-taken path. Performance optimization, not correctness requirement.</p>
+
+            <h3 id="section-5-3" class="section-heading"><span class="section-number">5.3</span>Divergence and Reconvergence</h3>
+            <p>The implementation is free to use any divergence mechanism:</p>
+            <ul>
+                <li>Compiler-managed execution masks (AMD)</li>
+                <li>Hardware per-thread program counters (NVIDIA)</li>
+                <li>Compiler-generated predication (Intel)</li>
+                <li>Hardware divergence stack (Apple)</li>
+                <li>Any other mechanism that preserves the specified semantics</li>
+            </ul>
+
+            <!-- Section 6: Instruction Set -->
+            <h2 id="section-6" class="section-heading"><span class="section-number">6.</span>Instruction Set</h2>
+
+            <h3 id="section-6-1" class="section-heading"><span class="section-number">6.1</span>Instruction Format</h3>
+            <p>All instructions operate on registers. No memory-to-register or memory-to-memory instructions except explicit load/store. Assembly notation: <code>opcode destination, source1, source2</code>.</p>
+
+            <h3 id="section-6-2" class="section-heading"><span class="section-number">6.2</span>Integer Arithmetic</h3>
+            <p>Full set of integer arithmetic for i32/u32:</p>
+            <ul>
+                <li><code>add</code>, <code>sub</code>, <code>mul</code>, <code>mul_hi</code>, <code>mad</code></li>
+                <li><code>div</code>, <code>mod</code>, <code>neg</code>, <code>abs</code></li>
+                <li><code>min</code>, <code>max</code>, <code>clamp</code></li>
+            </ul>
+
+            <h3 id="section-6-3" class="section-heading"><span class="section-number">6.3</span>Bitwise Operations</h3>
+            <ul>
+                <li><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code></li>
+                <li><code>shl</code>, <code>shr</code>, <code>sar</code></li>
+                <li><code>bitcount</code>, <code>bitfind</code>, <code>bitrev</code></li>
+                <li><code>bfe</code> (bit field extract), <code>bfi</code> (bit field insert)</li>
+            </ul>
+
+            <h3 id="section-6-4" class="section-heading"><span class="section-number">6.4</span>Floating-Point Arithmetic (F32) — REQUIRED</h3>
+            <p>IEEE 754 single precision. Operations:</p>
+            <ul>
+                <li><code>fadd</code>, <code>fsub</code>, <code>fmul</code>, <code>fma</code>, <code>fdiv</code></li>
+                <li><code>fneg</code>, <code>fabs</code>, <code>fmin</code>, <code>fmax</code>, <code>fclamp</code></li>
+                <li><code>fsqrt</code>, <code>frsqrt</code>, <code>frcp</code></li>
+                <li><code>ffloor</code>, <code>fceil</code>, <code>fround</code>, <code>ftrunc</code>, <code>ffract</code>, <code>fsat</code></li>
+            </ul>
+            <p>Transcendentals: <code>fsin</code>, <code>fcos</code>, <code>fexp2</code>, <code>flog2</code> (at least 2 ULP precision). Denormals <span class="rfc-keyword">MAY</span> be flushed to zero.</p>
+
+            <h3 id="section-6-5" class="section-heading"><span class="section-number">6.5</span>Floating-Point Arithmetic (F16) — REQUIRED</h3>
+            <p>F16 operations on register halves. Packed 2xF16 operations for throughput:</p>
+            <ul>
+                <li><code>hadd2</code>, <code>hmul2</code>, <code>hma2</code></li>
+            </ul>
+
+            <h3 id="section-6-6" class="section-heading"><span class="section-number">6.6</span>Floating-Point Arithmetic (F64) — OPTIONAL</h3>
+            <p>F64 operations on register pairs:</p>
+            <ul>
+                <li><code>dadd</code>, <code>dsub</code>, <code>dmul</code>, <code>dma</code>, <code>ddiv</code>, <code>dsqrt</code></li>
+            </ul>
+
+            <h3 id="section-6-7" class="section-heading"><span class="section-number">6.7</span>Type Conversion</h3>
+            <p>Type conversion between i32, u32, f16, f32, f64.</p>
+
+            <h3 id="section-6-8" class="section-heading"><span class="section-number">6.8</span>Comparison and Select</h3>
+            <p>Comparison instructions set predicate registers. Select instruction for conditional moves.</p>
+
+            <h3 id="section-6-9" class="section-heading"><span class="section-number">6.9</span>Memory Operations</h3>
+            <p><strong>Local memory:</strong> <code>local_load</code>/<code>local_store</code> for u8, u16, u32, u64.</p>
+            <p><strong>Device memory:</strong> <code>device_load</code>/<code>device_store</code> for u8, u16, u32, u64, u128. Device loads are asynchronous; use <code>wait</code> or <code>fence</code> before consuming.</p>
+            <p>Optional cache hints: <code>.cached</code>, <code>.uncached</code>, <code>.streaming</code>.</p>
+
+            <h3 id="section-6-10" class="section-heading"><span class="section-number">6.10</span>Atomic Operations</h3>
+            <p>Atomic instructions on Local and Device Memory with scope suffixes (<code>.wave</code>, <code>.workgroup</code>, <code>.device</code>, <code>.system</code>). Return old value; non-returning variants <span class="rfc-keyword">SHOULD</span> be optimized.</p>
+
+            <h3 id="section-6-11" class="section-heading"><span class="section-number">6.11</span>Wave Operations — REQUIRED</h3>
+            <ul>
+                <li><code>wave_shuffle</code> (by lane), <code>wave_shuffle_up</code>, <code>wave_shuffle_down</code>, <code>wave_shuffle_xor</code></li>
+                <li><code>wave_broadcast</code></li>
+                <li><code>wave_ballot</code>, <code>wave_any</code>, <code>wave_all</code></li>
+                <li><code>wave_prefix_sum</code></li>
+                <li><code>wave_reduce_add</code>, <code>wave_reduce_min</code>, <code>wave_reduce_max</code></li>
+            </ul>
+
+            <h3 id="section-6-12" class="section-heading"><span class="section-number">6.12</span>Synchronization</h3>
+            <ul>
+                <li><code>barrier</code> (Workgroup-scope)</li>
+                <li><code>fence_acquire</code>/<code>fence_release</code>/<code>fence_acq_rel</code> (scoped)</li>
+                <li><code>wait</code> (for async loads)</li>
+            </ul>
+
+            <h3 id="section-6-13" class="section-heading"><span class="section-number">6.13</span>Control Flow Instructions</h3>
+            <ul>
+                <li><code>if</code>, <code>else</code>, <code>endif</code></li>
+                <li><code>loop</code>, <code>break</code>, <code>continue</code>, <code>endloop</code></li>
+                <li><code>call</code>, <code>return</code>, <code>halt</code></li>
+            </ul>
+
+            <h3 id="section-6-14" class="section-heading"><span class="section-number">6.14</span>Matrix Multiply-Accumulate — OPTIONAL</h3>
+            <ul>
+                <li><code>mma_f16_f32</code>, <code>mma_bf16_f32</code>, <code>mma_f32_f32</code></li>
+            </ul>
+            <p>Tile dimensions queryable.</p>
+
+            <h4>Miscellaneous</h4>
+            <ul>
+                <li><code>mov</code>, <code>mov_imm</code>, <code>nop</code></li>
+            </ul>
+
+            <!-- Section 7: Capability System -->
+            <h2 id="section-7" class="section-heading"><span class="section-number">7.</span>Capability System</h2>
+
+            <h3 id="section-7-1" class="section-heading"><span class="section-number">7.1</span>Required Constants</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Constant</th>
+                        <th>Minimum</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>WAVE_WIDTH</code></td>
+                        <td>8</td>
+                        <td>Threads per Wave</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_REGISTERS</code></td>
+                        <td>64</td>
+                        <td>Maximum registers per Thread</td>
+                    </tr>
+                    <tr>
+                        <td><code>REGISTER_FILE_SIZE</code></td>
+                        <td>16384</td>
+                        <td>Total register file size (bytes)</td>
+                    </tr>
+                    <tr>
+                        <td><code>LOCAL_MEMORY_SIZE</code></td>
+                        <td>16384</td>
+                        <td>Local memory per Workgroup (bytes)</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_WORKGROUP_SIZE</code></td>
+                        <td>256</td>
+                        <td>Maximum Threads per Workgroup</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_WORKGROUPS_PER_CORE</code></td>
+                        <td>1</td>
+                        <td>Maximum concurrent Workgroups per Core</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_WAVES_PER_CORE</code></td>
+                        <td>4</td>
+                        <td>Maximum concurrent Waves per Core</td>
+                    </tr>
+                    <tr>
+                        <td><code>DEVICE_MEMORY_SIZE</code></td>
+                        <td>—</td>
+                        <td>Total device memory (bytes)</td>
+                    </tr>
+                    <tr>
+                        <td><code>CLUSTER_SIZE</code></td>
+                        <td>1</td>
+                        <td>Workgroups per Cluster</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_CALL_DEPTH</code></td>
+                        <td>8</td>
+                        <td>Maximum function call depth</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="section-7-2" class="section-heading"><span class="section-number">7.2</span>Optional Capabilities</h3>
+            <ul>
+                <li><code>CAP_F64</code> — 64-bit floating point</li>
+                <li><code>CAP_ATOMIC_64</code> — 64-bit atomics</li>
+                <li><code>CAP_ATOMIC_F32</code> — F32 atomic add</li>
+                <li><code>CAP_MMA</code> — Matrix multiply-accumulate</li>
+                <li><code>CAP_RECURSION</code> — Recursive function calls</li>
+                <li><code>CAP_CLUSTER</code> — Cluster support</li>
+            </ul>
+
+            <h3 id="section-7-3" class="section-heading"><span class="section-number">7.3</span>Matrix MMA Parameters</h3>
+            <p>When <code>CAP_MMA</code> is present, the following are queryable:</p>
+            <ul>
+                <li><code>MMA_M</code>, <code>MMA_N</code>, <code>MMA_K</code> — Tile dimensions</li>
+                <li><code>MMA_TYPES</code> — Supported input/output type combinations</li>
+            </ul>
+
+            <h3 id="section-7-4" class="section-heading"><span class="section-number">7.4</span>Query Mechanism</h3>
+            <p>Host API provides <code>query_constant</code> and <code>query_capability</code> functions.</p>
+
+            <!-- Section 8: Binary Encoding -->
+            <h2 id="section-8" class="section-heading"><span class="section-number">8.</span>Binary Encoding</h2>
+
+            <h3 id="section-8-1" class="section-heading"><span class="section-number">8.1</span>Base Instruction Format (32-bit)</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Bits</th>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>[31:26]</td>
+                        <td>opcode</td>
+                        <td>6 bits</td>
+                    </tr>
+                    <tr>
+                        <td>[25:21]</td>
+                        <td>rd</td>
+                        <td>5 bits — destination register</td>
+                    </tr>
+                    <tr>
+                        <td>[20:16]</td>
+                        <td>rs1</td>
+                        <td>5 bits — source register 1</td>
+                    </tr>
+                    <tr>
+                        <td>[15:11]</td>
+                        <td>rs2</td>
+                        <td>5 bits — source register 2</td>
+                    </tr>
+                    <tr>
+                        <td>[10:8]</td>
+                        <td>modifier</td>
+                        <td>3 bits</td>
+                    </tr>
+                    <tr>
+                        <td>[7:6]</td>
+                        <td>scope</td>
+                        <td>2 bits</td>
+                    </tr>
+                    <tr>
+                        <td>[5:4]</td>
+                        <td>pred</td>
+                        <td>2 bits — predicate register</td>
+                    </tr>
+                    <tr>
+                        <td>[3]</td>
+                        <td>pred_neg</td>
+                        <td>1 bit — predicate negation</td>
+                    </tr>
+                    <tr>
+                        <td>[2:0]</td>
+                        <td>flags</td>
+                        <td>3 bits</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="section-8-2" class="section-heading"><span class="section-number">8.2</span>Extended Instruction Format (64-bit)</h3>
+            <p>Word 0: base format with extended flags. Word 1: <code>rs3</code> or <code>imm32</code>.</p>
+
+            <h3 id="section-8-3" class="section-heading"><span class="section-number">8.3</span>Opcode Map</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Range</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x00-0x0F</td><td>Integer arithmetic</td></tr>
+                    <tr><td>0x10-0x1F</td><td>Floating-point</td></tr>
+                    <tr><td>0x20-0x27</td><td>Bitwise operations</td></tr>
+                    <tr><td>0x28-0x2F</td><td>Comparison</td></tr>
+                    <tr><td>0x30-0x37</td><td>Local memory</td></tr>
+                    <tr><td>0x38-0x3B</td><td>Device memory</td></tr>
+                    <tr><td>0x3C-0x3D</td><td>Atomic operations</td></tr>
+                    <tr><td>0x3E</td><td>Wave operations</td></tr>
+                    <tr><td>0x3F</td><td>Control flow</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Section 9: Conformance -->
+            <h2 id="section-9" class="section-heading"><span class="section-number">9.</span>Conformance</h2>
+
+            <h3 id="section-9-1" class="section-heading"><span class="section-number">9.1</span>Required Behavior</h3>
+            <p>Compliant implementations <span class="rfc-keyword">MUST</span>:</p>
+            <ul>
+                <li>Support all mandatory instructions</li>
+                <li>Meet all minimum constants</li>
+                <li>Implement memory ordering semantics</li>
+                <li>Implement structured control flow</li>
+                <li>Satisfy all execution guarantees</li>
+                <li>Correctly report capabilities</li>
+            </ul>
+
+            <h3 id="section-9-2" class="section-heading"><span class="section-number">9.2</span>Implementation-Defined Behavior</h3>
+            <ul>
+                <li>Denormal handling</li>
+                <li>Bank conflict penalty</li>
+                <li>Coalescing policy</li>
+                <li>Cache hierarchy</li>
+                <li>Scheduling policy</li>
+                <li>Transcendental precision beyond minimum</li>
+                <li>Out-of-bounds shuffle result</li>
+                <li>Unaligned access behavior</li>
+            </ul>
+
+            <h3 id="section-9-3" class="section-heading"><span class="section-number">9.3</span>Undefined Behavior</h3>
+            <ul>
+                <li>Out-of-bounds Local Memory access</li>
+                <li>Out-of-bounds Device Memory access</li>
+                <li>Using unsupported capabilities</li>
+                <li>Exceeding MAX_CALL_DEPTH</li>
+                <li>Data races without fencing</li>
+                <li>Infinite loops</li>
+            </ul>
+
+            <h3 id="section-9-4" class="section-heading"><span class="section-number">9.4</span>Conformance Testing</h3>
+            <p>A test suite will verify:</p>
+            <ul>
+                <li>Instruction correctness</li>
+                <li>Memory ordering</li>
+                <li>Barrier semantics</li>
+                <li>Atomic correctness</li>
+                <li>Divergent control flow</li>
+                <li>Capability reporting</li>
+            </ul>
+
+            <!-- Appendix A -->
+            <h2 id="appendix-a" class="section-heading"><span class="section-number">A.</span>Full Opcode Table</h2>
+            <p>A complete opcode table will be provided in a future revision.</p>
+
+            <!-- Appendix B: Vendor Mapping -->
+            <h2 id="appendix-b" class="section-heading"><span class="section-number">B.</span>Vendor Mapping Reference</h2>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Abstract Concept</th>
+                        <th>NVIDIA</th>
+                        <th>AMD RDNA</th>
+                        <th>AMD CDNA</th>
+                        <th>Intel</th>
+                        <th>Apple</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Core</td>
+                        <td>SM</td>
+                        <td>WGP</td>
+                        <td>CU</td>
+                        <td>Xe-core</td>
+                        <td>GPU core</td>
+                    </tr>
+                    <tr>
+                        <td>Wave</td>
+                        <td>Warp (32)</td>
+                        <td>Wavefront (32)</td>
+                        <td>Wavefront (64)</td>
+                        <td>Sub-group (8-16)</td>
+                        <td>SIMD-group (32)</td>
+                    </tr>
+                    <tr>
+                        <td>Register</td>
+                        <td>PTX register</td>
+                        <td>VGPR</td>
+                        <td>VGPR</td>
+                        <td>GRF entry</td>
+                        <td>GPR</td>
+                    </tr>
+                    <tr>
+                        <td>Local Memory</td>
+                        <td>Shared memory</td>
+                        <td>LDS</td>
+                        <td>LDS</td>
+                        <td>SLM</td>
+                        <td>Threadgroup mem</td>
+                    </tr>
+                    <tr>
+                        <td>Barrier</td>
+                        <td>bar.sync</td>
+                        <td>S_BARRIER</td>
+                        <td>S_BARRIER</td>
+                        <td>barrier</td>
+                        <td>threadgroup_barrier</td>
+                    </tr>
+                    <tr>
+                        <td>Shuffle</td>
+                        <td>__shfl_sync</td>
+                        <td>DPP/ds_permute</td>
+                        <td>DPP/ds_permute</td>
+                        <td>sub_group_shuffle</td>
+                        <td>simd_shuffle</td>
+                    </tr>
+                    <tr>
+                        <td>Atomic</td>
+                        <td>atom/red</td>
+                        <td>ds/buffer atomic</td>
+                        <td>ds/buffer atomic</td>
+                        <td>atomic_ref (SEND)</td>
+                        <td>atomic_fetch_add</td>
+                    </tr>
+                    <tr>
+                        <td>Device Memory</td>
+                        <td>Global memory</td>
+                        <td>VRAM</td>
+                        <td>VRAM</td>
+                        <td>GDDR/HBM</td>
+                        <td>LPDDR (unified)</td>
+                    </tr>
+                    <tr>
+                        <td>Fence</td>
+                        <td>fence.scope</td>
+                        <td>S_WAITCNT</td>
+                        <td>S_WAITCNT</td>
+                        <td>scoreboard</td>
+                        <td>wait_for_loads</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Appendix C -->
+            <h2 id="appendix-c" class="section-heading"><span class="section-number">C.</span>Revision History</h2>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0.1</td>
+                        <td>2026-03-22</td>
+                        <td>Initial working draft</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Defensive Publication Statement -->
+            <div class="defensive-publication">
+                <strong>Defensive Publication Statement:</strong> This specification is published as a defensive publication. The architectural concepts described herein are placed in the public domain for the purpose of establishing prior art and preventing proprietary claims on vendor-neutral GPU compute primitives.
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toc-toggle');
+            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Scroll spy for ToC
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const sections = document.querySelectorAll('.section-heading');
+
+        function updateActiveLink() {
+            let currentSection = '';
+            const scrollPos = window.scrollY + 100;
+
+            sections.forEach(section => {
+                if (section.offsetTop <= scrollPos) {
+                    currentSection = section.id;
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentSection}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveLink);
+        updateActiveLink();
+
+        // Smooth scroll for ToC links
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    // Close mobile sidebar
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
