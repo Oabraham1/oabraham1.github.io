@@ -121,6 +121,65 @@
             cursor: pointer;
         }
 
+        /* Version Switcher */
+        .version-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .version-switcher-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .version-select {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            color: var(--text-primary);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8a9e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            padding-right: 1.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .version-select:hover {
+            border-color: var(--accent);
+        }
+
+        .version-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+
+        .spec-version {
+            display: none;
+        }
+
+        .spec-version.active {
+            display: block;
+        }
+
+        .spec-toc {
+            display: none;
+        }
+
+        .spec-toc.active {
+            display: block;
+        }
+
         /* ========================================
            LAYOUT
            ======================================== */
@@ -465,7 +524,13 @@
     <!-- Top Navigation -->
     <nav class="spec-nav">
         <a href="index.html" class="spec-nav-back">← Back to ojima.me</a>
-        <span class="spec-nav-title">WAVE Specification v0.2</span>
+        <div class="version-switcher">
+            <span class="version-switcher-label">Version:</span>
+            <select class="version-select" id="version-select" onchange="switchVersion(this.value)">
+                <option value="v02">v0.2 (Current)</option>
+                <option value="v01">v0.1</option>
+            </select>
+        </div>
         <button class="mobile-toc-toggle" onclick="toggleSidebar()">Contents</button>
     </nav>
 
@@ -473,6 +538,9 @@
         <!-- Sidebar Table of Contents -->
         <aside class="spec-sidebar" id="sidebar">
             <h2 class="sidebar-title">Table of Contents</h2>
+
+            <!-- v0.2 ToC -->
+            <div id="toc-v02" class="spec-toc active">
             <ul class="toc-list">
                 <li class="toc-item"><a href="#section-0" class="toc-link"><span class="toc-number">0.</span>Conformance Language</a></li>
                 <li class="toc-item"><a href="#section-1" class="toc-link"><span class="toc-number">1.</span>Introduction</a></li>
@@ -559,10 +627,99 @@
                 <li class="toc-item"><a href="#appendix-b" class="toc-link"><span class="toc-number">B.</span>Vendor Mapping</a></li>
                 <li class="toc-item"><a href="#appendix-c" class="toc-link"><span class="toc-number">C.</span>Revision History</a></li>
             </ul>
+            </div>
+
+            <!-- v0.1 ToC -->
+            <div id="toc-v01" class="spec-toc">
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#v01-section-0" class="toc-link"><span class="toc-number">0.</span>Conformance Language</a></li>
+                <li class="toc-item"><a href="#v01-section-1" class="toc-link"><span class="toc-number">1.</span>Introduction</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-1-1" class="toc-link"><span class="toc-number">1.1</span>Purpose</a></li>
+                    <li class="toc-item"><a href="#v01-section-1-2" class="toc-link"><span class="toc-number">1.2</span>Scope</a></li>
+                    <li class="toc-item"><a href="#v01-section-1-3" class="toc-link"><span class="toc-number">1.3</span>Design Principles</a></li>
+                    <li class="toc-item"><a href="#v01-section-1-4" class="toc-link"><span class="toc-number">1.4</span>Relationship to Other Standards</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-2" class="toc-link"><span class="toc-number">2.</span>Execution Model</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-2-1" class="toc-link"><span class="toc-number">2.1</span>Overview</a></li>
+                    <li class="toc-item"><a href="#v01-section-2-2" class="toc-link"><span class="toc-number">2.2</span>Thread Hierarchy</a></li>
+                    <li class="toc-item"><a href="#v01-section-2-3" class="toc-link"><span class="toc-number">2.3</span>Thread Identifiers</a></li>
+                    <li class="toc-item"><a href="#v01-section-2-4" class="toc-link"><span class="toc-number">2.4</span>Core Resources</a></li>
+                    <li class="toc-item"><a href="#v01-section-2-5" class="toc-link"><span class="toc-number">2.5</span>Execution Guarantees</a></li>
+                    <li class="toc-item"><a href="#v01-section-2-6" class="toc-link"><span class="toc-number">2.6</span>Dispatch</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-3" class="toc-link"><span class="toc-number">3.</span>Register Model</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-3-1" class="toc-link"><span class="toc-number">3.1</span>General-Purpose Registers</a></li>
+                    <li class="toc-item"><a href="#v01-section-3-2" class="toc-link"><span class="toc-number">3.2</span>Sub-Register Access</a></li>
+                    <li class="toc-item"><a href="#v01-section-3-3" class="toc-link"><span class="toc-number">3.3</span>Register Pairs</a></li>
+                    <li class="toc-item"><a href="#v01-section-3-4" class="toc-link"><span class="toc-number">3.4</span>Special Registers</a></li>
+                    <li class="toc-item"><a href="#v01-section-3-5" class="toc-link"><span class="toc-number">3.5</span>Predicate Registers</a></li>
+                    <li class="toc-item"><a href="#v01-section-3-6" class="toc-link"><span class="toc-number">3.6</span>Allocation and Occupancy</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-4" class="toc-link"><span class="toc-number">4.</span>Memory Model</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-4-1" class="toc-link"><span class="toc-number">4.1</span>Memory Spaces</a></li>
+                    <li class="toc-item"><a href="#v01-section-4-2" class="toc-link"><span class="toc-number">4.2</span>Local Memory Details</a></li>
+                    <li class="toc-item"><a href="#v01-section-4-3" class="toc-link"><span class="toc-number">4.3</span>Device Memory Details</a></li>
+                    <li class="toc-item"><a href="#v01-section-4-4" class="toc-link"><span class="toc-number">4.4</span>Memory Ordering</a></li>
+                    <li class="toc-item"><a href="#v01-section-4-5" class="toc-link"><span class="toc-number">4.5</span>Atomic Operations</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-5" class="toc-link"><span class="toc-number">5.</span>Control Flow</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-5-1" class="toc-link"><span class="toc-number">5.1</span>Structured Control Flow</a></li>
+                    <li class="toc-item"><a href="#v01-section-5-2" class="toc-link"><span class="toc-number">5.2</span>Uniform Branches</a></li>
+                    <li class="toc-item"><a href="#v01-section-5-3" class="toc-link"><span class="toc-number">5.3</span>Divergence and Reconvergence</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-6" class="toc-link"><span class="toc-number">6.</span>Instruction Set</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-6-1" class="toc-link"><span class="toc-number">6.1</span>Instruction Format</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-2" class="toc-link"><span class="toc-number">6.2</span>Integer Arithmetic</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-3" class="toc-link"><span class="toc-number">6.3</span>Bitwise Operations</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-4" class="toc-link"><span class="toc-number">6.4</span>Floating-Point (F32)</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-5" class="toc-link"><span class="toc-number">6.5</span>Floating-Point (F16)</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-6" class="toc-link"><span class="toc-number">6.6</span>Floating-Point (F64)</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-7" class="toc-link"><span class="toc-number">6.7</span>Type Conversion</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-8" class="toc-link"><span class="toc-number">6.8</span>Comparison and Select</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-9" class="toc-link"><span class="toc-number">6.9</span>Memory Operations</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-10" class="toc-link"><span class="toc-number">6.10</span>Atomic Operations</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-11" class="toc-link"><span class="toc-number">6.11</span>Wave Operations</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-12" class="toc-link"><span class="toc-number">6.12</span>Synchronization</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-13" class="toc-link"><span class="toc-number">6.13</span>Control Flow Instructions</a></li>
+                    <li class="toc-item"><a href="#v01-section-6-14" class="toc-link"><span class="toc-number">6.14</span>Matrix MMA (Optional)</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-7" class="toc-link"><span class="toc-number">7.</span>Capability System</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-7-1" class="toc-link"><span class="toc-number">7.1</span>Required Constants</a></li>
+                    <li class="toc-item"><a href="#v01-section-7-2" class="toc-link"><span class="toc-number">7.2</span>Optional Capabilities</a></li>
+                    <li class="toc-item"><a href="#v01-section-7-3" class="toc-link"><span class="toc-number">7.3</span>MMA Parameters</a></li>
+                    <li class="toc-item"><a href="#v01-section-7-4" class="toc-link"><span class="toc-number">7.4</span>Query Mechanism</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-8" class="toc-link"><span class="toc-number">8.</span>Binary Encoding</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-8-1" class="toc-link"><span class="toc-number">8.1</span>Overview</a></li>
+                    <li class="toc-item"><a href="#v01-section-8-2" class="toc-link"><span class="toc-number">8.2</span>Base Format (32-bit)</a></li>
+                    <li class="toc-item"><a href="#v01-section-8-3" class="toc-link"><span class="toc-number">8.3</span>Extended Format (64-bit)</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-section-9" class="toc-link"><span class="toc-number">9.</span>Conformance</a></li>
+                <ul class="toc-sub">
+                    <li class="toc-item"><a href="#v01-section-9-1" class="toc-link"><span class="toc-number">9.1</span>Required Behavior</a></li>
+                    <li class="toc-item"><a href="#v01-section-9-2" class="toc-link"><span class="toc-number">9.2</span>Implementation-Defined</a></li>
+                    <li class="toc-item"><a href="#v01-section-9-3" class="toc-link"><span class="toc-number">9.3</span>Undefined Behavior</a></li>
+                    <li class="toc-item"><a href="#v01-section-9-4" class="toc-link"><span class="toc-number">9.4</span>Conformance Testing</a></li>
+                </ul>
+                <li class="toc-item"><a href="#v01-appendix-a" class="toc-link"><span class="toc-number">A.</span>Full Opcode Table</a></li>
+                <li class="toc-item"><a href="#v01-appendix-b" class="toc-link"><span class="toc-number">B.</span>Vendor Mapping</a></li>
+                <li class="toc-item"><a href="#v01-appendix-c" class="toc-link"><span class="toc-number">C.</span>Revision History</a></li>
+            </ul>
+            </div>
         </aside>
 
         <!-- Main Specification Content -->
         <main class="spec-content">
+            <!-- v0.2 Content -->
+            <div id="spec-v02" class="spec-version active">
             <!-- Document Header -->
             <header class="spec-header">
                 <h1 class="spec-title">The WAVE Specification</h1>
@@ -1586,10 +1743,1303 @@ return</code></pre>
             <div class="defensive-publication">
                 <strong>Defensive Publication Statement:</strong> This specification is published as a defensive publication. The architectural concepts described herein are placed in the public domain for the purpose of establishing prior art and preventing proprietary claims on vendor-neutral GPU compute primitives.
             </div>
+            </div><!-- End v0.2 Content -->
+
+            <!-- v0.1 Content -->
+            <div id="spec-v01" class="spec-version">
+            <!-- Document Header -->
+            <header class="spec-header">
+                <h1 class="spec-title">The WAVE Specification</h1>
+                <p class="spec-subtitle">Wide Architecture Virtual Encoding</p>
+                <div class="spec-meta">
+                    <div><span class="spec-meta-label">Version:</span> <span class="spec-meta-value">0.1 (Working Draft)</span></div>
+                    <div><span class="spec-meta-label">Authors:</span> <span class="spec-meta-value">Ojima Abraham, Onyinye Okoli</span></div>
+                    <div><span class="spec-meta-label">Date:</span> <span class="spec-meta-value">March 22, 2026</span></div>
+                    <div><span class="spec-meta-label">Status:</span> <span class="spec-meta-value">Working Draft</span></div>
+                </div>
+            </header>
+
+            <!-- Section 0: Conformance Language -->
+            <h2 id="v01-section-0" class="section-heading"><span class="section-number">0.</span>Conformance Language</h2>
+            <p>The key words <span class="rfc-keyword">MUST</span>, <span class="rfc-keyword">MUST NOT</span>, <span class="rfc-keyword">REQUIRED</span>, <span class="rfc-keyword">SHALL</span>, <span class="rfc-keyword">SHALL NOT</span>, <span class="rfc-keyword">SHOULD</span>, <span class="rfc-keyword">SHOULD NOT</span>, <span class="rfc-keyword">RECOMMENDED</span>, <span class="rfc-keyword">MAY</span>, and <span class="rfc-keyword">OPTIONAL</span> in this document are to be interpreted as described in RFC 2119.</p>
+
+            <!-- Section 1: Introduction -->
+            <h2 id="v01-section-1" class="section-heading"><span class="section-number">1.</span>Introduction</h2>
+
+            <h3 id="v01-section-1-1" class="section-heading"><span class="section-number">1.1</span>Purpose</h3>
+            <p>This specification defines WAVE (Wide Architecture Virtual Encoding), a vendor-neutral instruction set architecture for general-purpose GPU computation. It specifies an abstract execution model, a register model, a memory model, structured control flow semantics, an instruction set, and a capability query system.</p>
+            <p>The specification follows the thin abstraction principle: it defines what a compliant implementation <span class="rfc-keyword">MUST</span> be able to do, not how it must do it. Implementations <span class="rfc-keyword">MAY</span> use any microarchitectural technique to achieve compliance.</p>
+
+            <h3 id="v01-section-1-2" class="section-heading"><span class="section-number">1.2</span>Scope</h3>
+            <p>This specification covers general-purpose compute workloads. Graphics pipeline operations (rasterization, tessellation, pixel export, ray tracing) are out of scope and <span class="rfc-keyword">MAY</span> be addressed by future extensions.</p>
+
+            <h3 id="v01-section-1-3" class="section-heading"><span class="section-number">1.3</span>Design Principles</h3>
+            <ol>
+                <li><strong>Thin abstraction.</strong> Every requirement traces to a hardware-invariant primitive observed across all four major GPU vendors. No requirement is imposed for software convenience alone.</li>
+                <li><strong>Queryable parameters.</strong> Values that differ across implementations (wave width, register count, scratchpad size) are exposed as queryable constants, not fixed in the specification.</li>
+                <li><strong>Structured divergence.</strong> The specification defines control flow semantics but not divergence mechanisms. Implementations are free to use any technique (execution masks, predication, hardware stacks, per-thread program counters) to achieve the specified behavior.</li>
+                <li><strong>Mandatory minimums.</strong> Every queryable parameter has a minimum value. A compliant implementation <span class="rfc-keyword">MUST</span> meet or exceed all minimums.</li>
+            </ol>
+
+            <h3 id="v01-section-1-4" class="section-heading"><span class="section-number">1.4</span>Relationship to Other Standards</h3>
+            <p>This specification is complementary to existing standards. SPIR-V <span class="rfc-keyword">MAY</span> be used as a distribution format for programs targeting this ISA. OpenCL and Vulkan <span class="rfc-keyword">MAY</span> serve as host APIs for dispatching workloads. The distinction is that this specification defines the hardware execution model, while existing standards define host-device interaction.</p>
+
+            <!-- Section 2: Execution Model -->
+            <h2 id="v01-section-2" class="section-heading"><span class="section-number">2.</span>Execution Model</h2>
+
+            <h3 id="v01-section-2-1" class="section-heading"><span class="section-number">2.1</span>Overview</h3>
+            <p>A compliant processor consists of one or more Cores. Each Core is an independent compute unit capable of executing multiple Workgroups concurrently. Cores are not addressable by software. The hardware assigns Workgroups to Cores, and the programmer <span class="rfc-keyword">MUST NOT</span> assume any particular mapping.</p>
+
+            <h3 id="v01-section-2-2" class="section-heading"><span class="section-number">2.2</span>Thread Hierarchy</h3>
+            <p>The execution model defines four levels, three mandatory and one optional:</p>
+
+            <p><strong>Level 0: Thread.</strong> The smallest unit of execution. A Thread has a private register file, a scalar program counter, and a position within the hierarchy identified by hardware-populated identity values. A Thread executes a sequential stream of instructions.</p>
+
+            <p><strong>Level 1: Wave.</strong> A group of exactly W Threads that execute a single instruction simultaneously, where W is a hardware constant queryable at compile time (see Section 7). All Threads in a Wave share a program counter for the purpose of instruction fetch. When Threads in a Wave disagree on a branch condition, the implementation <span class="rfc-keyword">MUST</span> ensure that both paths execute with inactive Threads producing no architectural side effects. The mechanism by which this is achieved is not specified.</p>
+            <p>A Wave is the fundamental scheduling unit. The hardware scheduler operates on Waves, not individual Threads.</p>
+
+            <p><strong>Level 2: Workgroup.</strong> A group of one or more Waves, containing up to MAX_WORKGROUP_SIZE Threads. All Waves in a Workgroup execute on the same Core, share access to Local Memory, and may synchronize via Barriers.</p>
+            <p>The number of Waves per Workgroup is <code>ceil(workgroup_thread_count / W)</code>.</p>
+            <p>Workgroup dimensions are specified at dispatch time as a 3-dimensional size (x, y, z) where <code>x * y * z &lt;= MAX_WORKGROUP_SIZE</code>.</p>
+
+            <p><strong>Level 3: Grid.</strong> The complete dispatch of Workgroups. A Grid is specified as a 3-dimensional count of Workgroups. Workgroups within a Grid <span class="rfc-keyword">MAY</span> execute in any order, on any Core, at any time. No synchronization is available between Workgroups within a single Grid dispatch.</p>
+
+            <p><strong>Level 2.5 (Optional): Cluster.</strong> A group of Workgroups guaranteed to execute concurrently on adjacent Cores with access to each other's Local Memory. The Cluster size is queryable via CLUSTER_SIZE. If the implementation does not support Clusters, CLUSTER_SIZE is 1 and Cluster-scope operations behave identically to Workgroup-scope operations.</p>
+
+            <h3 id="v01-section-2-3" class="section-heading"><span class="section-number">2.3</span>Thread Identifiers</h3>
+            <p>Every Thread has the following hardware-populated, read-only values available as special registers:</p>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>thread_id.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Thread position within Workgroup (3D)</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave_id</code></td>
+                        <td>uint32</td>
+                        <td>Wave index within Workgroup</td>
+                    </tr>
+                    <tr>
+                        <td><code>lane_id</code></td>
+                        <td>uint32</td>
+                        <td>Thread position within Wave (0 to W-1)</td>
+                    </tr>
+                    <tr>
+                        <td><code>workgroup_id.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Workgroup position within Grid (3D)</td>
+                    </tr>
+                    <tr>
+                        <td><code>workgroup_size.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Workgroup dimensions</td>
+                    </tr>
+                    <tr>
+                        <td><code>grid_size.{x,y,z}</code></td>
+                        <td>uint32</td>
+                        <td>Grid dimensions (in Workgroups)</td>
+                    </tr>
+                    <tr>
+                        <td><code>num_waves</code></td>
+                        <td>uint32</td>
+                        <td>Number of Waves in this Workgroup</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-2-4" class="section-heading"><span class="section-number">2.4</span>Core Resources</h3>
+            <p>Each Core provides the following resources:</p>
+
+            <p><strong>Register File.</strong> A fixed-size on-chip storage of F bytes, partitioned among all simultaneously resident Threads. Each Thread receives R registers (declared at compile time). The maximum number of simultaneously resident Waves is bounded by:</p>
+            <pre><code>max_resident_waves = floor(F / (R * W * 4))</code></pre>
+            <p>where 4 is the register width in bytes (32 bits). This is the occupancy equation. Implementations <span class="rfc-keyword">MUST</span> support at least MIN_MAX_REGISTERS registers per Thread.</p>
+
+            <p><strong>Local Memory.</strong> A fixed-size on-chip scratchpad of S bytes, shared among all Waves in the same Workgroup. Local Memory is explicitly addressed via load and store instructions. There is no automatic caching or data placement. Local Memory contents are undefined at Workgroup start and are not preserved across Workgroup boundaries. Implementations <span class="rfc-keyword">MUST</span> provide at least MIN_LOCAL_MEMORY_SIZE bytes.</p>
+
+            <p><strong>Hardware Scheduler.</strong> Selects a ready Wave for execution each cycle. When a Wave stalls on a memory access, barrier, or other long-latency operation, the scheduler <span class="rfc-keyword">MUST</span> be able to select another resident Wave without software-visible overhead. The scheduling policy is implementation-defined.</p>
+
+            <h3 id="v01-section-2-5" class="section-heading"><span class="section-number">2.5</span>Execution Guarantees</h3>
+            <ol>
+                <li>All Threads in a Wave execute the same instruction in the same cycle, or appear to from the programmer's perspective.</li>
+                <li>Inactive Threads (those on the non-taken path of a divergent branch) produce no architectural side effects (no memory writes, no register updates visible to other Threads).</li>
+                <li>All Threads in a Workgroup that reach a Barrier will synchronize at that Barrier before any proceeds past it.</li>
+                <li>Memory operations to Local Memory are visible to all Threads in the Workgroup after a Barrier.</li>
+                <li>Memory operations to Device Memory are visible according to the memory ordering rules (Section 4).</li>
+                <li>Wave-level operations (reductions, broadcasts, shuffles) operate only on active Threads.</li>
+                <li>A compliant implementation <span class="rfc-keyword">MUST</span> eventually make progress on at least one Wave per Core.</li>
+            </ol>
+
+            <h3 id="v01-section-2-6" class="section-heading"><span class="section-number">2.6</span>Dispatch</h3>
+            <p>A dispatch consists of specifying:</p>
+            <ol>
+                <li>A program (compiled binary containing instructions for this ISA)</li>
+                <li>Grid dimensions (number of Workgroups in x, y, z)</li>
+                <li>Workgroup dimensions (number of Threads in x, y, z)</li>
+                <li>Kernel arguments (Device Memory pointers, constants)</li>
+            </ol>
+            <p>The implementation distributes Workgroups to Cores and creates Waves within each Workgroup. The distribution policy is implementation-defined.</p>
+
+            <!-- Section 3: Register Model -->
+            <h2 id="v01-section-3" class="section-heading"><span class="section-number">3.</span>Register Model</h2>
+
+            <h3 id="v01-section-3-1" class="section-heading"><span class="section-number">3.1</span>General-Purpose Registers</h3>
+            <p>Each Thread has access to R general-purpose registers, where R is declared at compile time and <span class="rfc-keyword">MUST</span> be at least MIN_MAX_REGISTERS. Registers are 32 bits wide and are denoted <code>r0</code>, <code>r1</code>, ..., <code>r(R-1)</code>. Register contents are undefined at Thread start unless explicitly initialized.</p>
+
+            <h3 id="v01-section-3-2" class="section-heading"><span class="section-number">3.2</span>Sub-Register Access</h3>
+            <p>A 32-bit register may be accessed as two 16-bit halves:</p>
+            <ul>
+                <li><code>r0.lo</code> – bits [15:0]</li>
+                <li><code>r0.hi</code> – bits [31:16]</li>
+            </ul>
+            <p>Or as four 8-bit bytes (optional capability):</p>
+            <ul>
+                <li><code>r0.b0</code> – bits [7:0]</li>
+                <li><code>r0.b1</code> – bits [15:8]</li>
+                <li><code>r0.b2</code> – bits [23:16]</li>
+                <li><code>r0.b3</code> – bits [31:24]</li>
+            </ul>
+
+            <h3 id="v01-section-3-3" class="section-heading"><span class="section-number">3.3</span>Register Pairs</h3>
+            <p>64-bit operations use register pairs. The notation <code>r0:r1</code> denotes a 64-bit value where <code>r0</code> holds the low 32 bits and <code>r1</code> holds the high 32 bits. Register pairs <span class="rfc-keyword">MUST</span> use adjacent even-odd register numbers (e.g., <code>r0:r1</code>, <code>r2:r3</code>, but not <code>r1:r2</code>).</p>
+
+            <h3 id="v01-section-3-4" class="section-heading"><span class="section-number">3.4</span>Special Registers</h3>
+            <p>The following read-only registers are populated by hardware:</p>
+            <ul>
+                <li><code>%tid.x</code>, <code>%tid.y</code>, <code>%tid.z</code> – Thread ID within Workgroup</li>
+                <li><code>%wid</code> – Wave ID within Workgroup</li>
+                <li><code>%lid</code> – Lane ID within Wave</li>
+                <li><code>%ctaid.x</code>, <code>%ctaid.y</code>, <code>%ctaid.z</code> – Workgroup ID within Grid</li>
+                <li><code>%ntid.x</code>, <code>%ntid.y</code>, <code>%ntid.z</code> – Workgroup dimensions</li>
+                <li><code>%nctaid.x</code>, <code>%nctaid.y</code>, <code>%nctaid.z</code> – Grid dimensions</li>
+                <li><code>%nwaves</code> – Number of Waves in this Workgroup</li>
+                <li><code>%clock</code> – Cycle counter (implementation-defined resolution)</li>
+            </ul>
+
+            <h3 id="v01-section-3-5" class="section-heading"><span class="section-number">3.5</span>Predicate Registers</h3>
+            <p>Implementations <span class="rfc-keyword">MUST</span> provide at least 8 predicate registers, denoted <code>p0</code> through <code>p7</code>. Each predicate register holds a boolean value (1 bit per Thread). Predicate registers are used for conditional execution and branch conditions.</p>
+
+            <h3 id="v01-section-3-6" class="section-heading"><span class="section-number">3.6</span>Allocation and Occupancy</h3>
+            <p>Compilers declare the number of registers required by a kernel. The runtime uses this to compute occupancy:</p>
+            <pre><code>occupancy = min(
+    max_waves_per_core,
+    floor(register_file_size / (registers_per_thread * wave_width * 4)),
+    floor(local_memory_size / local_memory_per_workgroup)
+)</code></pre>
+            <p>Higher occupancy generally improves latency hiding but reduces registers and Local Memory available per Thread.</p>
+
+            <!-- Section 4: Memory Model -->
+            <h2 id="v01-section-4" class="section-heading"><span class="section-number">4.</span>Memory Model</h2>
+
+            <h3 id="v01-section-4-1" class="section-heading"><span class="section-number">4.1</span>Memory Spaces</h3>
+            <p>The specification defines four memory spaces:</p>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Space</th>
+                        <th>Scope</th>
+                        <th>Lifetime</th>
+                        <th>Typical Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Private</td>
+                        <td>Single Thread</td>
+                        <td>Thread lifetime</td>
+                        <td>Registers or stack</td>
+                    </tr>
+                    <tr>
+                        <td>Local</td>
+                        <td>Workgroup</td>
+                        <td>Workgroup lifetime</td>
+                        <td>On-chip SRAM</td>
+                    </tr>
+                    <tr>
+                        <td>Device</td>
+                        <td>All Threads</td>
+                        <td>Kernel lifetime (at least)</td>
+                        <td>VRAM</td>
+                    </tr>
+                    <tr>
+                        <td>Constant</td>
+                        <td>All Threads</td>
+                        <td>Kernel lifetime</td>
+                        <td>Cached read-only</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-4-2" class="section-heading"><span class="section-number">4.2</span>Local Memory Details</h3>
+            <p>Local Memory <span class="rfc-keyword">MUST</span> support atomic operations. Access latency is implementation-defined but <span class="rfc-keyword">SHOULD</span> be significantly lower than Device Memory. Bank conflicts <span class="rfc-keyword">MAY</span> increase access latency but <span class="rfc-keyword">MUST NOT</span> affect correctness. The implementation <span class="rfc-keyword">MUST</span> provide at least MIN_LOCAL_MEMORY_SIZE bytes per Workgroup.</p>
+
+            <h3 id="v01-section-4-3" class="section-heading"><span class="section-number">4.3</span>Device Memory Details</h3>
+            <p>Device Memory is the largest but slowest memory space. It persists across kernel launches (until explicitly deallocated by the host). Device Memory <span class="rfc-keyword">MUST</span> support atomic operations. Coalescing (combining multiple Thread accesses into fewer memory transactions) is implementation-defined but strongly encouraged.</p>
+
+            <h3 id="v01-section-4-4" class="section-heading"><span class="section-number">4.4</span>Memory Ordering</h3>
+            <p>Within a single Thread, memory operations appear to execute in program order. Across Threads, the ordering is relaxed by default. Explicit ordering is achieved via:</p>
+
+            <p><strong>Fences.</strong> A fence instruction establishes ordering between memory operations before and after the fence. Fences are parameterized by scope:</p>
+            <ul>
+                <li><code>fence.wave</code> – ordering visible to all Threads in the Wave</li>
+                <li><code>fence.workgroup</code> – ordering visible to all Threads in the Workgroup</li>
+                <li><code>fence.device</code> – ordering visible to all Threads on the device</li>
+            </ul>
+
+            <p><strong>Barriers.</strong> A Barrier (<code>barrier</code>) implies a Workgroup-scope fence. All memory operations before the Barrier are visible to all Threads in the Workgroup after the Barrier.</p>
+
+            <h3 id="v01-section-4-5" class="section-heading"><span class="section-number">4.5</span>Atomic Operations</h3>
+            <p>Atomic operations are indivisible read-modify-write operations. Implementations <span class="rfc-keyword">MUST</span> support the following atomic operations on both Local and Device Memory:</p>
+            <ul>
+                <li><code>atom.add</code>, <code>atom.sub</code> – addition/subtraction</li>
+                <li><code>atom.min</code>, <code>atom.max</code> – minimum/maximum (signed and unsigned)</li>
+                <li><code>atom.and</code>, <code>atom.or</code>, <code>atom.xor</code> – bitwise operations</li>
+                <li><code>atom.exch</code> – exchange</li>
+                <li><code>atom.cas</code> – compare-and-swap</li>
+            </ul>
+            <p>64-bit atomics are an optional capability.</p>
+
+            <!-- Section 5: Control Flow -->
+            <h2 id="v01-section-5" class="section-heading"><span class="section-number">5.</span>Control Flow</h2>
+
+            <h3 id="v01-section-5-1" class="section-heading"><span class="section-number">5.1</span>Structured Control Flow</h3>
+            <p>All control flow <span class="rfc-keyword">MUST</span> be structured. The specification defines the following control flow primitives:</p>
+            <ul>
+                <li><code>if pd, label_else, label_endif</code> – conditional branch based on predicate pd</li>
+                <li><code>else</code> – marks the start of the else block</li>
+                <li><code>endif</code> – marks the end of the if/else construct</li>
+                <li><code>loop label_end</code> – begins a loop, label_end marks the end</li>
+                <li><code>endloop</code> – marks the end of a loop</li>
+                <li><code>break pd</code> – exits the innermost loop if predicate is true</li>
+                <li><code>continue pd</code> – jumps to the next iteration of the innermost loop</li>
+            </ul>
+            <p>Arbitrary <code>goto</code> is not supported. All control flow graphs <span class="rfc-keyword">MUST</span> be reducible.</p>
+
+            <h3 id="v01-section-5-2" class="section-heading"><span class="section-number">5.2</span>Uniform Branches</h3>
+            <p>A branch is uniform if all active Threads in a Wave take the same direction. Uniform branches have no divergence overhead. Compilers <span class="rfc-keyword">SHOULD</span> annotate branches as uniform when known, allowing optimizations.</p>
+            <p>The syntax for annotating a branch as uniform is <code>@uniform if pd, ...</code>. If a branch annotated as uniform diverges at runtime, behavior is undefined.</p>
+
+            <h3 id="v01-section-5-3" class="section-heading"><span class="section-number">5.3</span>Divergence and Reconvergence</h3>
+            <p>When Threads in a Wave disagree on a branch condition, the Wave is divergent. The implementation <span class="rfc-keyword">MUST</span> execute both paths, but the order and mechanism are implementation-defined. Possible mechanisms include:</p>
+            <ul>
+                <li>Execution masks (execute both paths with some Threads inactive)</li>
+                <li>Stack-based reconvergence</li>
+                <li>Per-Thread program counters</li>
+            </ul>
+            <p>The specification only requires that:</p>
+            <ol>
+                <li>All Threads reconverge after structured control flow constructs (at <code>endif</code>, <code>endloop</code>).</li>
+                <li>Inactive Threads produce no side effects.</li>
+                <li>Wave-level operations operate only on active Threads.</li>
+            </ol>
+
+            <!-- Section 6: Instruction Set -->
+            <h2 id="v01-section-6" class="section-heading"><span class="section-number">6.</span>Instruction Set</h2>
+
+            <h3 id="v01-section-6-1" class="section-heading"><span class="section-number">6.1</span>Instruction Format</h3>
+            <p>All instructions follow the format:</p>
+            <pre><code>[predicate] opcode[.modifiers] destination, source1, source2, ...</code></pre>
+            <p>Where:</p>
+            <ul>
+                <li><code>predicate</code> (optional): <code>@p0</code>...<code>@p7</code> for conditional execution</li>
+                <li><code>opcode</code>: instruction mnemonic</li>
+                <li><code>modifiers</code>: type suffixes, rounding modes, etc.</li>
+                <li><code>destination</code>: target register</li>
+                <li><code>source</code>: source operands (registers, immediates)</li>
+            </ul>
+
+            <h3 id="v01-section-6-2" class="section-heading"><span class="section-number">6.2</span>Integer Arithmetic</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>add.s32 rd, ra, rb</code></td>
+                        <td>Signed 32-bit add</td>
+                        <td>rd = ra + rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>add.u32 rd, ra, rb</code></td>
+                        <td>Unsigned 32-bit add</td>
+                        <td>rd = ra + rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>sub.s32 rd, ra, rb</code></td>
+                        <td>Signed 32-bit subtract</td>
+                        <td>rd = ra - rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>mul.lo.s32 rd, ra, rb</code></td>
+                        <td>Signed multiply (low 32 bits)</td>
+                        <td>rd = (ra * rb)[31:0]</td>
+                    </tr>
+                    <tr>
+                        <td><code>mul.hi.s32 rd, ra, rb</code></td>
+                        <td>Signed multiply (high 32 bits)</td>
+                        <td>rd = (ra * rb)[63:32]</td>
+                    </tr>
+                    <tr>
+                        <td><code>mul.wide.s32 rd:rd+1, ra, rb</code></td>
+                        <td>Signed 32x32→64 multiply</td>
+                        <td>rd:rd+1 = ra * rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>mad.lo.s32 rd, ra, rb, rc</code></td>
+                        <td>Multiply-add (low bits)</td>
+                        <td>rd = (ra * rb)[31:0] + rc</td>
+                    </tr>
+                    <tr>
+                        <td><code>div.s32 rd, ra, rb</code></td>
+                        <td>Signed division</td>
+                        <td>rd = ra / rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>rem.s32 rd, ra, rb</code></td>
+                        <td>Signed remainder</td>
+                        <td>rd = ra % rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>neg.s32 rd, ra</code></td>
+                        <td>Negate</td>
+                        <td>rd = -ra</td>
+                    </tr>
+                    <tr>
+                        <td><code>abs.s32 rd, ra</code></td>
+                        <td>Absolute value</td>
+                        <td>rd = |ra|</td>
+                    </tr>
+                    <tr>
+                        <td><code>min.s32 rd, ra, rb</code></td>
+                        <td>Minimum</td>
+                        <td>rd = min(ra, rb)</td>
+                    </tr>
+                    <tr>
+                        <td><code>max.s32 rd, ra, rb</code></td>
+                        <td>Maximum</td>
+                        <td>rd = max(ra, rb)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-3" class="section-heading"><span class="section-number">6.3</span>Bitwise Operations</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>and.b32 rd, ra, rb</code></td>
+                        <td>Bitwise AND</td>
+                        <td>rd = ra &amp; rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>or.b32 rd, ra, rb</code></td>
+                        <td>Bitwise OR</td>
+                        <td>rd = ra | rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>xor.b32 rd, ra, rb</code></td>
+                        <td>Bitwise XOR</td>
+                        <td>rd = ra ^ rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>not.b32 rd, ra</code></td>
+                        <td>Bitwise NOT</td>
+                        <td>rd = ~ra</td>
+                    </tr>
+                    <tr>
+                        <td><code>shl.b32 rd, ra, rb</code></td>
+                        <td>Shift left</td>
+                        <td>rd = ra &lt;&lt; rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>shr.u32 rd, ra, rb</code></td>
+                        <td>Logical shift right</td>
+                        <td>rd = ra &gt;&gt;&gt; rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>shr.s32 rd, ra, rb</code></td>
+                        <td>Arithmetic shift right</td>
+                        <td>rd = ra &gt;&gt; rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>popc.b32 rd, ra</code></td>
+                        <td>Population count</td>
+                        <td>rd = popcount(ra)</td>
+                    </tr>
+                    <tr>
+                        <td><code>clz.b32 rd, ra</code></td>
+                        <td>Count leading zeros</td>
+                        <td>rd = clz(ra)</td>
+                    </tr>
+                    <tr>
+                        <td><code>brev.b32 rd, ra</code></td>
+                        <td>Bit reverse</td>
+                        <td>rd = reverse_bits(ra)</td>
+                    </tr>
+                    <tr>
+                        <td><code>bfe.u32 rd, ra, rb, rc</code></td>
+                        <td>Bit field extract</td>
+                        <td>rd = (ra &gt;&gt; rb) &amp; mask(rc)</td>
+                    </tr>
+                    <tr>
+                        <td><code>bfi.b32 rd, ra, rb, rc, re</code></td>
+                        <td>Bit field insert</td>
+                        <td>Insert rc bits of ra at position rb into re</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-4" class="section-heading"><span class="section-number">6.4</span>Floating-Point (F32)</h3>
+            <p>All implementations <span class="rfc-keyword">MUST</span> support IEEE 754-2008 single-precision (binary32) with the following exceptions:</p>
+            <ul>
+                <li>Denormal inputs <span class="rfc-keyword">MAY</span> be flushed to zero.</li>
+                <li>Denormal outputs <span class="rfc-keyword">MAY</span> be flushed to zero.</li>
+                <li>NaN payloads are implementation-defined.</li>
+            </ul>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>add.f32 rd, ra, rb</code></td>
+                        <td>Addition</td>
+                    </tr>
+                    <tr>
+                        <td><code>sub.f32 rd, ra, rb</code></td>
+                        <td>Subtraction</td>
+                    </tr>
+                    <tr>
+                        <td><code>mul.f32 rd, ra, rb</code></td>
+                        <td>Multiplication</td>
+                    </tr>
+                    <tr>
+                        <td><code>fma.f32 rd, ra, rb, rc</code></td>
+                        <td>Fused multiply-add (rd = ra*rb + rc)</td>
+                    </tr>
+                    <tr>
+                        <td><code>div.f32 rd, ra, rb</code></td>
+                        <td>Division</td>
+                    </tr>
+                    <tr>
+                        <td><code>rcp.f32 rd, ra</code></td>
+                        <td>Reciprocal (approximate, 1 ULP)</td>
+                    </tr>
+                    <tr>
+                        <td><code>sqrt.f32 rd, ra</code></td>
+                        <td>Square root</td>
+                    </tr>
+                    <tr>
+                        <td><code>rsqrt.f32 rd, ra</code></td>
+                        <td>Reciprocal square root (approximate)</td>
+                    </tr>
+                    <tr>
+                        <td><code>neg.f32 rd, ra</code></td>
+                        <td>Negate</td>
+                    </tr>
+                    <tr>
+                        <td><code>abs.f32 rd, ra</code></td>
+                        <td>Absolute value</td>
+                    </tr>
+                    <tr>
+                        <td><code>min.f32 rd, ra, rb</code></td>
+                        <td>Minimum (IEEE semantics)</td>
+                    </tr>
+                    <tr>
+                        <td><code>max.f32 rd, ra, rb</code></td>
+                        <td>Maximum (IEEE semantics)</td>
+                    </tr>
+                    <tr>
+                        <td><code>sin.f32 rd, ra</code></td>
+                        <td>Sine (approximate)</td>
+                    </tr>
+                    <tr>
+                        <td><code>cos.f32 rd, ra</code></td>
+                        <td>Cosine (approximate)</td>
+                    </tr>
+                    <tr>
+                        <td><code>exp2.f32 rd, ra</code></td>
+                        <td>2^x (approximate)</td>
+                    </tr>
+                    <tr>
+                        <td><code>log2.f32 rd, ra</code></td>
+                        <td>log₂(x) (approximate)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-5" class="section-heading"><span class="section-number">6.5</span>Floating-Point (F16)</h3>
+            <p>Half-precision support is an optional capability. When present:</p>
+            <ul>
+                <li>Two f16 values are packed into a single 32-bit register.</li>
+                <li>Operations operate on pairs (vec2) or scalars.</li>
+            </ul>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>add.f16x2 rd, ra, rb</code></td>
+                        <td>Packed f16 addition</td>
+                    </tr>
+                    <tr>
+                        <td><code>mul.f16x2 rd, ra, rb</code></td>
+                        <td>Packed f16 multiplication</td>
+                    </tr>
+                    <tr>
+                        <td><code>fma.f16x2 rd, ra, rb, rc</code></td>
+                        <td>Packed f16 FMA</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-6" class="section-heading"><span class="section-number">6.6</span>Floating-Point (F64)</h3>
+            <p>Double-precision support is an optional capability. When present, operations use register pairs.</p>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>add.f64 rd:rd+1, ra:ra+1, rb:rb+1</code></td>
+                        <td>f64 addition</td>
+                    </tr>
+                    <tr>
+                        <td><code>mul.f64 rd:rd+1, ra:ra+1, rb:rb+1</code></td>
+                        <td>f64 multiplication</td>
+                    </tr>
+                    <tr>
+                        <td><code>fma.f64 rd:rd+1, ra:ra+1, rb:rb+1, rc:rc+1</code></td>
+                        <td>f64 FMA</td>
+                    </tr>
+                    <tr>
+                        <td><code>div.f64 rd:rd+1, ra:ra+1, rb:rb+1</code></td>
+                        <td>f64 division</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-7" class="section-heading"><span class="section-number">6.7</span>Type Conversion</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>cvt.f32.s32 rd, ra</code></td>
+                        <td>Signed int to float</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.f32.u32 rd, ra</code></td>
+                        <td>Unsigned int to float</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.s32.f32 rd, ra</code></td>
+                        <td>Float to signed int (truncate)</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.rni.s32.f32 rd, ra</code></td>
+                        <td>Float to signed int (round nearest)</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.f16.f32 rd, ra</code></td>
+                        <td>f32 to f16 (packed)</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.f32.f16 rd, ra</code></td>
+                        <td>f16 to f32 (unpacked)</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.f64.f32 rd:rd+1, ra</code></td>
+                        <td>f32 to f64</td>
+                    </tr>
+                    <tr>
+                        <td><code>cvt.f32.f64 rd, ra:ra+1</code></td>
+                        <td>f64 to f32</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-8" class="section-heading"><span class="section-number">6.8</span>Comparison and Select</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>setp.eq.s32 pd, ra, rb</code></td>
+                        <td>Set predicate if equal</td>
+                    </tr>
+                    <tr>
+                        <td><code>setp.ne.s32 pd, ra, rb</code></td>
+                        <td>Set predicate if not equal</td>
+                    </tr>
+                    <tr>
+                        <td><code>setp.lt.s32 pd, ra, rb</code></td>
+                        <td>Set predicate if less than</td>
+                    </tr>
+                    <tr>
+                        <td><code>setp.le.s32 pd, ra, rb</code></td>
+                        <td>Set predicate if less or equal</td>
+                    </tr>
+                    <tr>
+                        <td><code>setp.gt.s32 pd, ra, rb</code></td>
+                        <td>Set predicate if greater than</td>
+                    </tr>
+                    <tr>
+                        <td><code>setp.ge.s32 pd, ra, rb</code></td>
+                        <td>Set predicate if greater or equal</td>
+                    </tr>
+                    <tr>
+                        <td><code>selp.s32 rd, ra, rb, pd</code></td>
+                        <td>Select: rd = pd ? ra : rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>slct.s32.f32 rd, ra, rb, rc</code></td>
+                        <td>Select based on sign: rd = (rc &gt;= 0) ? ra : rb</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Floating-point comparisons include special handling for NaN:</p>
+            <ul>
+                <li><code>setp.eq.f32</code>: false if either operand is NaN</li>
+                <li><code>setp.neu.f32</code>: true if either operand is NaN (unordered not-equal)</li>
+            </ul>
+
+            <h3 id="v01-section-6-9" class="section-heading"><span class="section-number">6.9</span>Memory Operations</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ld.local.b32 rd, [ra]</code></td>
+                        <td>Load 32 bits from Local Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>ld.local.b64 rd:rd+1, [ra]</code></td>
+                        <td>Load 64 bits from Local Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>ld.global.b32 rd, [ra]</code></td>
+                        <td>Load 32 bits from Device Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>ld.const.b32 rd, [ra]</code></td>
+                        <td>Load 32 bits from Constant Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>st.local.b32 [ra], rb</code></td>
+                        <td>Store 32 bits to Local Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>st.global.b32 [ra], rb</code></td>
+                        <td>Store 32 bits to Device Memory</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Vector loads/stores are supported for efficiency:</p>
+            <ul>
+                <li><code>ld.global.v2.b32 {rd, rd+1}, [ra]</code> – load 2x32 bits</li>
+                <li><code>ld.global.v4.b32 {rd, rd+1, rd+2, rd+3}, [ra]</code> – load 4x32 bits</li>
+            </ul>
+
+            <h3 id="v01-section-6-10" class="section-heading"><span class="section-number">6.10</span>Atomic Operations</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>atom.local.add.u32 rd, [ra], rb</code></td>
+                        <td>Atomic add to Local Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>atom.global.add.u32 rd, [ra], rb</code></td>
+                        <td>Atomic add to Device Memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>atom.global.cas.b32 rd, [ra], rb, rc</code></td>
+                        <td>Compare-and-swap</td>
+                    </tr>
+                    <tr>
+                        <td><code>atom.global.exch.b32 rd, [ra], rb</code></td>
+                        <td>Exchange</td>
+                    </tr>
+                    <tr>
+                        <td><code>atom.global.min.s32 rd, [ra], rb</code></td>
+                        <td>Atomic minimum</td>
+                    </tr>
+                    <tr>
+                        <td><code>atom.global.max.s32 rd, [ra], rb</code></td>
+                        <td>Atomic maximum</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>All atomic operations return the value before the operation was applied.</p>
+
+            <h3 id="v01-section-6-11" class="section-heading"><span class="section-number">6.11</span>Wave Operations</h3>
+            <p>Wave operations perform computation across all active Threads in a Wave.</p>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>wave.reduce.add.u32 rd, ra</code></td>
+                        <td>Sum of ra across all active lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.reduce.min.s32 rd, ra</code></td>
+                        <td>Minimum of ra across all active lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.reduce.max.s32 rd, ra</code></td>
+                        <td>Maximum of ra across all active lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.reduce.and.b32 rd, ra</code></td>
+                        <td>Bitwise AND across all active lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.reduce.or.b32 rd, ra</code></td>
+                        <td>Bitwise OR across all active lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.broadcast.b32 rd, ra, rb</code></td>
+                        <td>Broadcast ra from lane rb to all lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.shuffle.b32 rd, ra, rb</code></td>
+                        <td>rd = ra from lane rb</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.shuffle.xor.b32 rd, ra, rb</code></td>
+                        <td>rd = ra from lane (lane_id ^ rb)</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.shuffle.up.b32 rd, ra, rb</code></td>
+                        <td>rd = ra from lane (lane_id - rb)</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.shuffle.down.b32 rd, ra, rb</code></td>
+                        <td>rd = ra from lane (lane_id + rb)</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.prefix.add.u32 rd, ra</code></td>
+                        <td>Exclusive prefix sum</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.ballot.b32 rd, pd</code></td>
+                        <td>rd = bitmask of pd across all lanes</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.any pd, ps</code></td>
+                        <td>pd = true if any active lane has ps=true</td>
+                    </tr>
+                    <tr>
+                        <td><code>wave.all pd, ps</code></td>
+                        <td>pd = true if all active lanes have ps=true</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-12" class="section-heading"><span class="section-number">6.12</span>Synchronization</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>barrier</code></td>
+                        <td>Workgroup barrier + memory fence</td>
+                    </tr>
+                    <tr>
+                        <td><code>fence.wave</code></td>
+                        <td>Memory fence, Wave scope</td>
+                    </tr>
+                    <tr>
+                        <td><code>fence.workgroup</code></td>
+                        <td>Memory fence, Workgroup scope</td>
+                    </tr>
+                    <tr>
+                        <td><code>fence.device</code></td>
+                        <td>Memory fence, Device scope</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-13" class="section-heading"><span class="section-number">6.13</span>Control Flow Instructions</h3>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>if pd</code></td>
+                        <td>Begin if block</td>
+                    </tr>
+                    <tr>
+                        <td><code>else</code></td>
+                        <td>Begin else block</td>
+                    </tr>
+                    <tr>
+                        <td><code>endif</code></td>
+                        <td>End if/else block</td>
+                    </tr>
+                    <tr>
+                        <td><code>loop</code></td>
+                        <td>Begin loop</td>
+                    </tr>
+                    <tr>
+                        <td><code>endloop</code></td>
+                        <td>End loop</td>
+                    </tr>
+                    <tr>
+                        <td><code>break pd</code></td>
+                        <td>Break from loop if predicate true</td>
+                    </tr>
+                    <tr>
+                        <td><code>continue pd</code></td>
+                        <td>Continue to next iteration if predicate true</td>
+                    </tr>
+                    <tr>
+                        <td><code>ret</code></td>
+                        <td>Return from kernel</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-6-14" class="section-heading"><span class="section-number">6.14</span>Matrix MMA (Optional)</h3>
+            <p>Matrix multiply-accumulate (MMA) operations are an optional capability. When present, implementations support tensor core-style operations:</p>
+            <pre><code>mma.m16n8k8.f32.f16 {d0,d1,d2,d3}, {a0,a1}, {b0}, {c0,c1,c2,c3}</code></pre>
+            <p>The exact shapes and data types are queryable via the capability system (see Section 7).</p>
+
+            <!-- Section 7: Capability System -->
+            <h2 id="v01-section-7" class="section-heading"><span class="section-number">7.</span>Capability System</h2>
+
+            <h3 id="v01-section-7-1" class="section-heading"><span class="section-number">7.1</span>Required Constants</h3>
+            <p>Every implementation <span class="rfc-keyword">MUST</span> provide the following queryable constants:</p>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Constant</th>
+                        <th>Minimum</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>WAVE_WIDTH</code></td>
+                        <td>16</td>
+                        <td>Number of Threads per Wave</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_WORKGROUP_SIZE</code></td>
+                        <td>256</td>
+                        <td>Maximum Threads per Workgroup</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_REGISTERS</code></td>
+                        <td>64</td>
+                        <td>Maximum registers per Thread</td>
+                    </tr>
+                    <tr>
+                        <td><code>LOCAL_MEMORY_SIZE</code></td>
+                        <td>16384</td>
+                        <td>Bytes of Local Memory per Workgroup</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_WAVES_PER_CORE</code></td>
+                        <td>16</td>
+                        <td>Maximum resident Waves per Core</td>
+                    </tr>
+                    <tr>
+                        <td><code>PREDICATE_REGISTERS</code></td>
+                        <td>8</td>
+                        <td>Number of predicate registers</td>
+                    </tr>
+                    <tr>
+                        <td><code>CLUSTER_SIZE</code></td>
+                        <td>1</td>
+                        <td>Workgroups per Cluster (1 = no clusters)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-7-2" class="section-heading"><span class="section-number">7.2</span>Optional Capabilities</h3>
+            <p>Implementations <span class="rfc-keyword">MAY</span> support the following optional features:</p>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Capability</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>CAP_F16</code></td>
+                        <td>Half-precision floating-point</td>
+                    </tr>
+                    <tr>
+                        <td><code>CAP_F64</code></td>
+                        <td>Double-precision floating-point</td>
+                    </tr>
+                    <tr>
+                        <td><code>CAP_ATOMIC64</code></td>
+                        <td>64-bit atomic operations</td>
+                    </tr>
+                    <tr>
+                        <td><code>CAP_MMA</code></td>
+                        <td>Matrix multiply-accumulate</td>
+                    </tr>
+                    <tr>
+                        <td><code>CAP_DP4A</code></td>
+                        <td>4-element dot product (int8)</td>
+                    </tr>
+                    <tr>
+                        <td><code>CAP_SUBGROUPS</code></td>
+                        <td>Subgroup operations (partial wave)</td>
+                    </tr>
+                    <tr>
+                        <td><code>CAP_CLUSTER</code></td>
+                        <td>Cluster-scope operations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-7-3" class="section-heading"><span class="section-number">7.3</span>MMA Parameters</h3>
+            <p>If <code>CAP_MMA</code> is present, the following constants define supported MMA shapes:</p>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Constant</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>MMA_M</code></td>
+                        <td>M dimension (rows of output)</td>
+                    </tr>
+                    <tr>
+                        <td><code>MMA_N</code></td>
+                        <td>N dimension (columns of output)</td>
+                    </tr>
+                    <tr>
+                        <td><code>MMA_K</code></td>
+                        <td>K dimension (inner dimension)</td>
+                    </tr>
+                    <tr>
+                        <td><code>MMA_INPUT_TYPES</code></td>
+                        <td>Bitmask of supported input types</td>
+                    </tr>
+                    <tr>
+                        <td><code>MMA_OUTPUT_TYPES</code></td>
+                        <td>Bitmask of supported output types</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="v01-section-7-4" class="section-heading"><span class="section-number">7.4</span>Query Mechanism</h3>
+            <p>The host runtime provides a query function:</p>
+            <pre><code>wave_result wave_get_capability(wave_device device, wave_capability cap, void* value, size_t size);</code></pre>
+            <p>Where <code>cap</code> is an enumeration of all queryable constants and capabilities. The function writes the value to the provided buffer and returns a success/error code.</p>
+            <p>Example usage:</p>
+            <pre><code>uint32_t wave_width;
+wave_get_capability(device, WAVE_CAP_WAVE_WIDTH, &amp;wave_width, sizeof(wave_width));</code></pre>
+
+            <!-- Section 8: Binary Encoding -->
+            <h2 id="v01-section-8" class="section-heading"><span class="section-number">8.</span>Binary Encoding</h2>
+
+            <h3 id="v01-section-8-1" class="section-heading"><span class="section-number">8.1</span>Overview</h3>
+            <p>Instructions are encoded in either a 32-bit base format or a 64-bit extended format. The base format accommodates common operations with register operands. The extended format adds support for immediate values, additional operands, and modifiers.</p>
+
+            <h3 id="v01-section-8-2" class="section-heading"><span class="section-number">8.2</span>Base Format (32-bit)</h3>
+            <pre><code>31      26 25    21 20    16 15    11 10     6 5       0
+┌─────────┬────────┬────────┬────────┬────────┬─────────┐
+│ opcode  │   rd   │   ra   │   rb   │  pred  │  flags  │
+│ (6 bits)│(5 bits)│(5 bits)│(5 bits)│(5 bits)│ (6 bits)│
+└─────────┴────────┴────────┴────────┴────────┴─────────┘</code></pre>
+            <ul>
+                <li><strong>opcode</strong>: Primary operation code (64 base opcodes)</li>
+                <li><strong>rd</strong>: Destination register</li>
+                <li><strong>ra, rb</strong>: Source registers</li>
+                <li><strong>pred</strong>: Predicate register (0 = unconditional, 1-7 = p1-p7, 8-15 = !p0-!p7)</li>
+                <li><strong>flags</strong>: Operation-specific flags (saturation, rounding, etc.)</li>
+            </ul>
+
+            <h3 id="v01-section-8-3" class="section-heading"><span class="section-number">8.3</span>Extended Format (64-bit)</h3>
+            <pre><code>63      58 57    53 52    48 47    43 42    38 37    32
+┌─────────┬────────┬────────┬────────┬────────┬────────┐
+│  1 1 1  │ opcode │   rd   │   ra   │   rb   │   rc   │
+│ (3 bits)│(5 bits)│(5 bits)│(5 bits)│(5 bits)│(5 bits)│
+└─────────┴────────┴────────┴────────┴────────┴────────┘
+31                                                     0
+┌──────────────────────────────────────────────────────┐
+│                     immediate                         │
+│                     (32 bits)                         │
+└──────────────────────────────────────────────────────┘</code></pre>
+            <p>The extended format is indicated by opcode bits [31:29] = 111. This allows for:</p>
+            <ul>
+                <li>4-operand instructions (FMA, MMA)</li>
+                <li>32-bit immediate values</li>
+                <li>Extended opcodes (224 additional operations)</li>
+            </ul>
+
+            <!-- Section 9: Conformance -->
+            <h2 id="v01-section-9" class="section-heading"><span class="section-number">9.</span>Conformance</h2>
+
+            <h3 id="v01-section-9-1" class="section-heading"><span class="section-number">9.1</span>Required Behavior</h3>
+            <p>A conformant implementation <span class="rfc-keyword">MUST</span>:</p>
+            <ol>
+                <li>Execute all required instructions with correct semantics.</li>
+                <li>Meet or exceed all minimum capability values.</li>
+                <li>Provide correct memory ordering per Section 4.</li>
+                <li>Correctly handle divergence per Section 5.</li>
+                <li>Report capabilities accurately via Section 7.</li>
+            </ol>
+
+            <h3 id="v01-section-9-2" class="section-heading"><span class="section-number">9.2</span>Implementation-Defined</h3>
+            <p>The following are implementation-defined:</p>
+            <ul>
+                <li>Scheduling policy (Wave selection, Workgroup assignment)</li>
+                <li>Memory coalescing behavior</li>
+                <li>Bank conflict penalties</li>
+                <li>Divergence mechanism</li>
+                <li>NaN payload values</li>
+                <li>Clock counter resolution</li>
+            </ul>
+
+            <h3 id="v01-section-9-3" class="section-heading"><span class="section-number">9.3</span>Undefined Behavior</h3>
+            <p>The following result in undefined behavior:</p>
+            <ul>
+                <li>Barrier within divergent control flow</li>
+                <li>Uniform branch that diverges at runtime</li>
+                <li>Access to unallocated registers</li>
+                <li>Out-of-bounds memory access</li>
+                <li>Data races (concurrent access without synchronization where at least one is a write)</li>
+            </ul>
+
+            <h3 id="v01-section-9-4" class="section-heading"><span class="section-number">9.4</span>Conformance Testing</h3>
+            <p>The reference test suite (forthcoming) will include:</p>
+            <ul>
+                <li>Instruction correctness tests for all required operations</li>
+                <li>Memory ordering tests</li>
+                <li>Divergence correctness tests</li>
+                <li>Capability query tests</li>
+                <li>Edge case tests (overflow, NaN handling, etc.)</li>
+            </ul>
+
+            <!-- Appendix A -->
+            <h2 id="v01-appendix-a" class="section-heading"><span class="section-number">A.</span>Full Opcode Table</h2>
+            <p>Deferred to a future version of this specification.</p>
+
+            <!-- Appendix B -->
+            <h2 id="v01-appendix-b" class="section-heading"><span class="section-number">B.</span>Vendor Mapping</h2>
+            <p>This appendix provides suggested mappings to vendor ISAs for reference implementations:</p>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>WAVE Concept</th>
+                        <th>NVIDIA (PTX)</th>
+                        <th>AMD (RDNA)</th>
+                        <th>Intel (Xe)</th>
+                        <th>Apple (M-series)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Wave</td>
+                        <td>Warp (32)</td>
+                        <td>Wave (32/64)</td>
+                        <td>SIMD (8/16)</td>
+                        <td>SIMD-group (32)</td>
+                    </tr>
+                    <tr>
+                        <td>Workgroup</td>
+                        <td>Thread Block</td>
+                        <td>Work-group</td>
+                        <td>Thread Group</td>
+                        <td>Threadgroup</td>
+                    </tr>
+                    <tr>
+                        <td>Local Memory</td>
+                        <td>Shared Memory</td>
+                        <td>LDS</td>
+                        <td>SLM</td>
+                        <td>Threadgroup Memory</td>
+                    </tr>
+                    <tr>
+                        <td>Device Memory</td>
+                        <td>Global Memory</td>
+                        <td>VRAM</td>
+                        <td>Global Memory</td>
+                        <td>Device Memory</td>
+                    </tr>
+                    <tr>
+                        <td>wave.shuffle</td>
+                        <td>shfl.sync</td>
+                        <td>ds_permute</td>
+                        <td>mov (cross-lane)</td>
+                        <td>quad_shuffle</td>
+                    </tr>
+                    <tr>
+                        <td>Barrier</td>
+                        <td>bar.sync</td>
+                        <td>s_barrier</td>
+                        <td>barrier</td>
+                        <td>threadgroup_barrier</td>
+                    </tr>
+                    <tr>
+                        <td>Fence</td>
+                        <td>fence.sc</td>
+                        <td>S_WAITCNT</td>
+                        <td>scoreboard</td>
+                        <td>wait_for_loads</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Appendix C -->
+            <h2 id="v01-appendix-c" class="section-heading"><span class="section-number">C.</span>Revision History</h2>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Date</th>
+                        <th>Changes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0.1</td>
+                        <td>2026-03-22</td>
+                        <td>Initial draft</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Defensive Publication Statement -->
+            <div class="defensive-publication">
+                <strong>Defensive Publication Statement:</strong> This specification is published as a defensive publication. The architectural concepts described herein are placed in the public domain for the purpose of establishing prior art and preventing proprietary claims on vendor-neutral GPU compute primitives.
+            </div>
+            </div><!-- End v0.1 Content -->
         </main>
     </div>
 
     <script>
+        // Current version state
+        let currentVersion = 'v02';
+
+        // Version switcher
+        function switchVersion(version) {
+            currentVersion = version;
+
+            // Update content visibility
+            document.querySelectorAll('.spec-version').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('spec-' + version).classList.add('active');
+
+            // Update ToC visibility
+            document.querySelectorAll('.spec-toc').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('toc-' + version).classList.add('active');
+
+            // Update dropdown
+            document.getElementById('version-select').value = version;
+
+            // Update URL hash
+            history.replaceState(null, '', '#' + version);
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+
+            // Reinitialize scroll spy for new version
+            initScrollSpy();
+        }
+
+        // Initialize version from URL hash
+        function initVersionFromHash() {
+            const hash = window.location.hash.slice(1);
+            if (hash === 'v01' || hash === 'v0.1') {
+                switchVersion('v01');
+            } else if (hash === 'v02' || hash === 'v0.2' || hash === '') {
+                switchVersion('v02');
+            } else {
+                // Hash might be a section anchor, determine which version it belongs to
+                if (hash.startsWith('v01-')) {
+                    switchVersion('v01');
+                    setTimeout(() => {
+                        const target = document.getElementById(hash);
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                } else {
+                    switchVersion('v02');
+                    setTimeout(() => {
+                        const target = document.getElementById(hash);
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                }
+            }
+        }
+
         // Mobile sidebar toggle
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -1605,41 +3055,56 @@ return</code></pre>
         });
 
         // Scroll spy for ToC
-        const tocLinks = document.querySelectorAll('.toc-link');
-        const sections = document.querySelectorAll('.section-heading');
+        function initScrollSpy() {
+            const activeToc = document.getElementById('toc-' + currentVersion);
+            const tocLinks = activeToc.querySelectorAll('.toc-link');
+            const activeContent = document.getElementById('spec-' + currentVersion);
+            const sections = activeContent.querySelectorAll('.section-heading');
 
-        function updateActiveLink() {
-            let currentSection = '';
-            const scrollPos = window.scrollY + 100;
+            function updateActiveLink() {
+                let currentSection = '';
+                const scrollPos = window.scrollY + 100;
 
-            sections.forEach(section => {
-                if (section.offsetTop <= scrollPos) {
-                    currentSection = section.id;
-                }
-            });
+                sections.forEach(section => {
+                    if (section.offsetTop <= scrollPos) {
+                        currentSection = section.id;
+                    }
+                });
 
+                tocLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${currentSection}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // Remove old listener and add new one
+            window.removeEventListener('scroll', window.scrollSpyHandler);
+            window.scrollSpyHandler = updateActiveLink;
+            window.addEventListener('scroll', window.scrollSpyHandler);
+            updateActiveLink();
+
+            // Smooth scroll for ToC links
             tocLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${currentSection}`) {
-                    link.classList.add('active');
-                }
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.querySelector(link.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                        // Close mobile sidebar
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
+                });
             });
         }
 
-        window.addEventListener('scroll', updateActiveLink);
-        updateActiveLink();
+        // Handle hash changes
+        window.addEventListener('hashchange', initVersionFromHash);
 
-        // Smooth scroll for ToC links
-        tocLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = document.querySelector(link.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                    // Close mobile sidebar
-                    document.getElementById('sidebar').classList.remove('open');
-                }
-            });
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initVersionFromHash();
         });
     </script>
 </body>
