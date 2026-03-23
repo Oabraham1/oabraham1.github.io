@@ -465,7 +465,7 @@
     <!-- Top Navigation -->
     <nav class="spec-nav">
         <a href="index.html" class="spec-nav-back">← Back to ojima.me</a>
-        <span class="spec-nav-title">WAVE Specification v0.1</span>
+        <span class="spec-nav-title">WAVE Specification v0.2</span>
         <button class="mobile-toc-toggle" onclick="toggleSidebar()">Contents</button>
     </nav>
 
@@ -481,6 +481,7 @@
                     <li class="toc-item"><a href="#section-1-2" class="toc-link"><span class="toc-number">1.2</span>Scope</a></li>
                     <li class="toc-item"><a href="#section-1-3" class="toc-link"><span class="toc-number">1.3</span>Design Principles</a></li>
                     <li class="toc-item"><a href="#section-1-4" class="toc-link"><span class="toc-number">1.4</span>Relationship to Other Standards</a></li>
+                    <li class="toc-item"><a href="#section-1-5" class="toc-link"><span class="toc-number">1.5</span>Changes from v0.1</a></li>
                 </ul>
                 <li class="toc-item"><a href="#section-2" class="toc-link"><span class="toc-number">2.</span>Execution Model</a></li>
                 <ul class="toc-sub">
@@ -513,6 +514,8 @@
                     <li class="toc-item"><a href="#section-5-1" class="toc-link"><span class="toc-number">5.1</span>Structured Control Flow</a></li>
                     <li class="toc-item"><a href="#section-5-2" class="toc-link"><span class="toc-number">5.2</span>Uniform Branches</a></li>
                     <li class="toc-item"><a href="#section-5-3" class="toc-link"><span class="toc-number">5.3</span>Divergence and Reconvergence</a></li>
+                    <li class="toc-item"><a href="#section-5-4" class="toc-link"><span class="toc-number">5.4</span>Minimum Divergence Depth</a></li>
+                    <li class="toc-item"><a href="#section-5-5" class="toc-link"><span class="toc-number">5.5</span>Per-Wave Control Flow State</a></li>
                 </ul>
                 <li class="toc-item"><a href="#section-6" class="toc-link"><span class="toc-number">6.</span>Instruction Set</a></li>
                 <ul class="toc-sub">
@@ -540,9 +543,10 @@
                 </ul>
                 <li class="toc-item"><a href="#section-8" class="toc-link"><span class="toc-number">8.</span>Binary Encoding</a></li>
                 <ul class="toc-sub">
-                    <li class="toc-item"><a href="#section-8-1" class="toc-link"><span class="toc-number">8.1</span>Base Format (32-bit)</a></li>
-                    <li class="toc-item"><a href="#section-8-2" class="toc-link"><span class="toc-number">8.2</span>Extended Format (64-bit)</a></li>
-                    <li class="toc-item"><a href="#section-8-3" class="toc-link"><span class="toc-number">8.3</span>Opcode Map</a></li>
+                    <li class="toc-item"><a href="#section-8-1" class="toc-link"><span class="toc-number">8.1</span>Overview</a></li>
+                    <li class="toc-item"><a href="#section-8-2" class="toc-link"><span class="toc-number">8.2</span>Base Format (48-bit)</a></li>
+                    <li class="toc-item"><a href="#section-8-3" class="toc-link"><span class="toc-number">8.3</span>Extended Format (80-bit)</a></li>
+                    <li class="toc-item"><a href="#section-8-4" class="toc-link"><span class="toc-number">8.4</span>Opcode Map</a></li>
                 </ul>
                 <li class="toc-item"><a href="#section-9" class="toc-link"><span class="toc-number">9.</span>Conformance</a></li>
                 <ul class="toc-sub">
@@ -564,10 +568,10 @@
                 <h1 class="spec-title">The WAVE Specification</h1>
                 <p class="spec-subtitle">Wide Architecture Virtual Encoding</p>
                 <div class="spec-meta">
-                    <div><span class="spec-meta-label">Version:</span> <span class="spec-meta-value">0.1 (Working Draft)</span></div>
-                    <div><span class="spec-meta-label">Authors:</span> <span class="spec-meta-value">Ojima Abraham (Franklin & Marshall College), Onyinye Okoli (Cornell University)</span></div>
-                    <div><span class="spec-meta-label">Date:</span> <span class="spec-meta-value">March 22, 2026</span></div>
-                    <div><span class="spec-meta-label">License:</span> <span class="spec-meta-value">Apache 2.0</span></div>
+                    <div><span class="spec-meta-label">Version:</span> <span class="spec-meta-value">0.2 (Working Draft, Revised)</span></div>
+                    <div><span class="spec-meta-label">Authors:</span> <span class="spec-meta-value">Ojima Abraham, Onyinye Okoli</span></div>
+                    <div><span class="spec-meta-label">Date:</span> <span class="spec-meta-value">March 23, 2026</span></div>
+                    <div><span class="spec-meta-label">Status:</span> <span class="spec-meta-value">Working Draft (Revised)</span></div>
                 </div>
             </header>
 
@@ -596,6 +600,17 @@
             <h3 id="section-1-4" class="section-heading"><span class="section-number">1.4</span>Relationship to Other Standards</h3>
             <p>This specification is complementary to existing standards. SPIR-V <span class="rfc-keyword">MAY</span> be used as a distribution format for programs targeting this ISA. OpenCL and Vulkan <span class="rfc-keyword">MAY</span> serve as host APIs for dispatching workloads. The distinction is that this specification defines the hardware execution model, while existing standards define host-device interaction.</p>
 
+            <h3 id="section-1-5" class="section-heading"><span class="section-number">1.5</span>Changes from v0.1</h3>
+            <p>This version incorporates corrections and clarifications discovered during implementation of the reference toolchain (assembler, disassembler, and emulator). Key changes:</p>
+            <ol>
+                <li><strong>Register encoding widened from 5-bit to 8-bit</strong> (Section 8.2). The v0.1 encoding used 5-bit register fields, limiting addressable registers to 32. This conflicted with Section 7.1, which specifies MAX_REGISTERS minimum of 64. The encoding is now 8-bit, supporting up to 256 registers per thread.</li>
+                <li><strong>Minimum divergence stack depth specified</strong> (Section 5.4, Section 7.1). v0.1 did not define a minimum nesting depth for structured control flow. Implementations <span class="rfc-keyword">MUST</span> now support at least 32 levels of nested control flow.</li>
+                <li><strong>Predicate negation semantics clarified</strong> (Section 5.1). v0.1 did not specify behavior of negated predicates on break and continue instructions. This is now explicitly defined.</li>
+                <li><strong>Per-Wave control flow state requirement added</strong> (Section 5.5). v0.1 did not specify whether control flow state (divergence stack) is per-Wave or shared. Each Wave <span class="rfc-keyword">MUST</span> have independent control flow state.</li>
+                <li><strong>Full opcode table provided</strong> (Appendix A). v0.1 deferred this to a future version.</li>
+                <li><strong>Conformance test suite referenced</strong> (Section 9.4). The reference test suite (102 tests) is now a companion artifact.</li>
+            </ol>
+
             <!-- Section 2: Execution Model -->
             <h2 id="section-2" class="section-heading"><span class="section-number">2.</span>Execution Model</h2>
 
@@ -607,8 +622,8 @@
 
             <p><strong>Level 0: Thread.</strong> The smallest unit of execution. A Thread has a private register file, a scalar program counter, and a position within the hierarchy identified by hardware-populated identity values. A Thread executes a sequential stream of instructions.</p>
 
-            <p><strong>Level 1: Wave.</strong> A group of exactly W Threads that execute a single instruction simultaneously, where W is a hardware constant queryable at compile time. All Threads in a Wave share a program counter for the purpose of instruction fetch. When Threads in a Wave disagree on a branch condition, the implementation <span class="rfc-keyword">MUST</span> ensure that both paths execute with inactive Threads producing no architectural side effects. The mechanism by which this is achieved is not specified.</p>
-            <p>A Wave is the fundamental scheduling unit. The hardware scheduler operates on Waves, not individual Threads.</p>
+            <p><strong>Level 1: Wave.</strong> A group of exactly W Threads that execute a single instruction simultaneously, where W is a hardware constant queryable at compile time (see Section 7). All Threads in a Wave share a program counter for the purpose of instruction fetch. When Threads in a Wave disagree on a branch condition, the implementation <span class="rfc-keyword">MUST</span> ensure that both paths execute with inactive Threads producing no architectural side effects. The mechanism by which this is achieved is not specified.</p>
+            <p>A Wave is the fundamental scheduling unit. The hardware scheduler operates on Waves, not individual Threads. Each Wave <span class="rfc-keyword">MUST</span> maintain independent control flow state (see Section 5.5).</p>
 
             <p><strong>Level 2: Workgroup.</strong> A group of one or more Waves, containing up to MAX_WORKGROUP_SIZE Threads. All Waves in a Workgroup execute on the same Core, share access to Local Memory, and may synchronize via Barriers.</p>
             <p>The number of Waves per Workgroup is <code>ceil(workgroup_thread_count / W)</code>.</p>
@@ -688,6 +703,7 @@
                 <li>A Workgroup that uses Local Memory or Barriers <span class="rfc-keyword">MUST</span> have all its Waves resident on a single Core simultaneously.</li>
                 <li>The implementation <span class="rfc-keyword">MUST</span> guarantee forward progress for at least one Wave per Core at all times (no deadlock from scheduling).</li>
                 <li>A Wave that has been dispatched <span class="rfc-keyword">MUST</span> eventually complete, assuming the program terminates (no starvation).</li>
+                <li>Execution <span class="rfc-keyword">MUST</span> be deterministic: given identical inputs, program binary, and dispatch configuration, the same program <span class="rfc-keyword">MUST</span> produce identical results across runs on the same implementation. (Non-determinism across different implementations is permitted for implementation-defined behaviors.)</li>
             </ol>
 
             <h3 id="section-2-6" class="section-heading"><span class="section-number">2.6</span>Dispatch</h3>
@@ -785,48 +801,79 @@
             <h2 id="section-5" class="section-heading"><span class="section-number">5.</span>Control Flow</h2>
 
             <h3 id="section-5-1" class="section-heading"><span class="section-number">5.1</span>Structured Control Flow</h3>
-            <p>All control flow <span class="rfc-keyword">MUST</span> be expressible through structured primitives:</p>
-            <ul>
-                <li><code>if/else/endif</code> for conditionals</li>
-                <li><code>loop/break/continue/endloop</code> for loops</li>
-                <li><code>call/return</code> for functions</li>
-            </ul>
-            <p>The implementation <span class="rfc-keyword">MUST NOT</span> require the programmer to manage divergence masks. When Threads in a Wave diverge, both paths execute with inactive Threads producing no side effects. After <code>endif</code>, all originally active Threads are active again.</p>
+            <p>The ISA defines structured control flow primitives. All control flow <span class="rfc-keyword">MUST</span> be expressible through these primitives. The implementation <span class="rfc-keyword">MUST NOT</span> require the programmer to manage divergence masks, execution masks, or reconvergence points.</p>
+            <p><strong>Conditional:</strong></p>
+            <pre><code>if (predicate)
+    &lt;then-body&gt;
+else
+    &lt;else-body&gt;
+endif</code></pre>
+            <p>When Threads in a Wave evaluate the predicate differently, the implementation <span class="rfc-keyword">MUST</span> execute both paths. Threads for which the predicate is false <span class="rfc-keyword">MUST NOT</span> produce side effects during the then-body, and vice versa for the else-body. After <code>endif</code>, all Threads that were active before the if are active again.</p>
+            <p><strong>Loop:</strong></p>
+            <pre><code>loop
+    &lt;body&gt;
+    break (predicate)    // exit loop for Threads where predicate is true
+    continue (predicate) // skip to next iteration for Threads where predicate is true
+endloop</code></pre>
+            <p>A loop executes until all active Threads have exited via break. The implementation <span class="rfc-keyword">MUST</span> guarantee forward progress: if at least one Thread remains in the loop, execution continues.</p>
+            <p><strong>Predicate negation on break and continue:</strong> When a break or continue instruction uses a negated predicate (e.g., <code>break !p0</code>), the instruction applies to Threads where the predicate is false. That is, <code>break !p0</code> causes Threads where p0 is false to exit the loop. The negation is applied before evaluating which Threads are affected.</p>
+            <p><strong>Function call:</strong></p>
+            <pre><code>call &lt;function&gt;
+return</code></pre>
+            <p>Function calls push the return address onto an implementation-managed call stack. The call stack depth <span class="rfc-keyword">MUST</span> support at least MAX_CALL_DEPTH levels of nesting (see Section 7.1). Recursion is <span class="rfc-keyword">OPTIONAL</span> (see Section 7).</p>
 
             <h3 id="section-5-2" class="section-heading"><span class="section-number">5.2</span>Uniform Branches</h3>
             <p>If all Threads in a Wave evaluate a branch identically (uniform), the implementation <span class="rfc-keyword">SHOULD</span> avoid executing the not-taken path. Performance optimization, not correctness requirement.</p>
 
             <h3 id="section-5-3" class="section-heading"><span class="section-number">5.3</span>Divergence and Reconvergence</h3>
-            <p>The implementation is free to use any divergence mechanism:</p>
+            <p>The implementation is free to use any mechanism to implement the structured control flow semantics of Section 5.1:</p>
             <ul>
-                <li>Compiler-managed execution masks (AMD)</li>
-                <li>Hardware per-thread program counters (NVIDIA)</li>
-                <li>Compiler-generated predication (Intel)</li>
-                <li>Hardware divergence stack (Apple)</li>
+                <li>Compiler-managed execution masks (AMD approach)</li>
+                <li>Hardware per-thread program counters (NVIDIA approach)</li>
+                <li>Compiler-generated predicated instructions (Intel approach)</li>
+                <li>Hardware divergence stack (Apple approach)</li>
                 <li>Any other mechanism that preserves the specified semantics</li>
             </ul>
+            <p>The ISA does not expose or constrain the divergence mechanism.</p>
+
+            <h3 id="section-5-4" class="section-heading"><span class="section-number">5.4</span>Minimum Divergence Depth</h3>
+            <p>Implementations <span class="rfc-keyword">MUST</span> support nested control flow (if/else/endif, loop/break/endloop) to a depth of at least MIN_DIVERGENCE_DEPTH levels (see Section 7.1). This means a program may have up to MIN_DIVERGENCE_DEPTH nested if/else/endif blocks, or nested loops, or any combination thereof.</p>
+            <p>If a program exceeds the implementation's maximum divergence depth, the behavior is undefined.</p>
+
+            <h3 id="section-5-5" class="section-heading"><span class="section-number">5.5</span>Per-Wave Control Flow State</h3>
+            <p>Each Wave <span class="rfc-keyword">MUST</span> maintain independent control flow state. This includes, but is not limited to, the divergence stack (active mask history), loop iteration state, and reconvergence points. Two Waves executing the same program binary at different points in a loop or branch <span class="rfc-keyword">MUST NOT</span> interfere with each other's control flow state.</p>
+            <p><strong>Rationale:</strong> This requirement was added in v0.2 after the reference emulator discovered that sharing control flow state across Waves in a Workgroup causes deadlock when Waves reach barriers at different loop iterations.</p>
 
             <!-- Section 6: Instruction Set -->
             <h2 id="section-6" class="section-heading"><span class="section-number">6.</span>Instruction Set</h2>
 
             <h3 id="section-6-1" class="section-heading"><span class="section-number">6.1</span>Instruction Format</h3>
-            <p>All instructions operate on registers. No memory-to-register or memory-to-memory instructions except explicit load/store. Assembly notation: <code>opcode destination, source1, source2</code>.</p>
+            <p>All instructions operate on registers. There are no memory-to-register or memory-to-memory instructions (except explicit load/store).</p>
+            <p>Instructions are specified in this document in assembly notation:</p>
+            <pre><code>opcode destination, source1, source2</code></pre>
+            <p>Predicated instructions are written as:</p>
+            <pre><code>@predicate opcode destination, source1, source2     // execute if predicate is true
+@!predicate opcode destination, source1, source2    // execute if predicate is false</code></pre>
+            <p>A predicated instruction executes only for Threads where the predicate condition is met. Threads where the condition is not met are unaffected — their destination registers retain their previous values and no side effects (memory stores, atomics) occur.</p>
+            <p>The binary encoding of instructions is defined in Section 8.</p>
 
             <h3 id="section-6-2" class="section-heading"><span class="section-number">6.2</span>Integer Arithmetic</h3>
-            <p>Full set of integer arithmetic for i32/u32:</p>
+            <p>All integer operations are performed per-Thread. Full set of integer arithmetic for i32/u32:</p>
             <ul>
-                <li><code>add</code>, <code>sub</code>, <code>mul</code>, <code>mul_hi</code>, <code>mad</code></li>
-                <li><code>div</code>, <code>mod</code>, <code>neg</code>, <code>abs</code></li>
-                <li><code>min</code>, <code>max</code>, <code>clamp</code></li>
+                <li><code>iadd</code>, <code>isub</code>, <code>imul</code>, <code>imul_hi</code>, <code>imad</code></li>
+                <li><code>idiv</code>, <code>imod</code>, <code>ineg</code>, <code>iabs</code></li>
+                <li><code>imin</code>, <code>imax</code>, <code>iclamp</code></li>
             </ul>
+            <p>Integer arithmetic uses wrapping semantics for overflow. Division by zero produces undefined behavior.</p>
 
             <h3 id="section-6-3" class="section-heading"><span class="section-number">6.3</span>Bitwise Operations</h3>
             <ul>
                 <li><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code></li>
-                <li><code>shl</code>, <code>shr</code>, <code>sar</code></li>
+                <li><code>shl</code>, <code>shr</code> (logical), <code>sar</code> (arithmetic)</li>
                 <li><code>bitcount</code>, <code>bitfind</code>, <code>bitrev</code></li>
                 <li><code>bfe</code> (bit field extract), <code>bfi</code> (bit field insert)</li>
             </ul>
+            <p>Shift amounts are masked to 5 bits (shift by rs2 &amp; 0x1F).</p>
 
             <h3 id="section-6-4" class="section-heading"><span class="section-number">6.4</span>Floating-Point Arithmetic (F32) — REQUIRED</h3>
             <p>IEEE 754 single precision. Operations:</p>
@@ -865,27 +912,48 @@
             <p>Atomic instructions on Local and Device Memory with scope suffixes (<code>.wave</code>, <code>.workgroup</code>, <code>.device</code>, <code>.system</code>). Return old value; non-returning variants <span class="rfc-keyword">SHOULD</span> be optimized.</p>
 
             <h3 id="section-6-11" class="section-heading"><span class="section-number">6.11</span>Wave Operations — REQUIRED</h3>
+            <p>Wave operations communicate between Threads within a Wave without going through memory.</p>
             <ul>
                 <li><code>wave_shuffle</code> (by lane), <code>wave_shuffle_up</code>, <code>wave_shuffle_down</code>, <code>wave_shuffle_xor</code></li>
                 <li><code>wave_broadcast</code></li>
                 <li><code>wave_ballot</code>, <code>wave_any</code>, <code>wave_all</code></li>
-                <li><code>wave_prefix_sum</code></li>
+                <li><code>wave_prefix_sum</code> (exclusive)</li>
                 <li><code>wave_reduce_add</code>, <code>wave_reduce_min</code>, <code>wave_reduce_max</code></li>
             </ul>
+            <p>For shuffle operations, if the source lane is out of bounds (&lt; 0 or &gt;= W) or the source lane is inactive, the result is implementation-defined.</p>
+            <p>Wave operations operate only on active Threads. Inactive Threads (masked by divergence) do not participate in reductions, ballots, or prefix sums, and do not have their registers modified.</p>
 
             <h3 id="section-6-12" class="section-heading"><span class="section-number">6.12</span>Synchronization</h3>
             <ul>
-                <li><code>barrier</code> (Workgroup-scope)</li>
+                <li><code>barrier</code> — Workgroup-scope barrier. All Waves in the Workgroup <span class="rfc-keyword">MUST</span> reach this point before any Wave proceeds past it. Memory operations before the barrier are visible to all Waves in the Workgroup after the barrier.</li>
                 <li><code>fence_acquire</code>/<code>fence_release</code>/<code>fence_acq_rel</code> (scoped)</li>
                 <li><code>wait</code> (for async loads)</li>
             </ul>
+            <p><strong>Barrier restriction:</strong> A barrier instruction <span class="rfc-keyword">MUST NOT</span> appear inside a divergent control flow path. That is, when a Wave reaches a barrier, all active Threads in that Wave (at the point of the outermost non-divergent scope) must reach the same barrier. Barriers inside uniform <code>if</code> blocks (where all Threads agree) are permitted. Barriers inside loops are permitted provided all Waves in the Workgroup execute the same number of barrier instructions per loop iteration.</p>
 
             <h3 id="section-6-13" class="section-heading"><span class="section-number">6.13</span>Control Flow Instructions</h3>
-            <ul>
-                <li><code>if</code>, <code>else</code>, <code>endif</code></li>
-                <li><code>loop</code>, <code>break</code>, <code>continue</code>, <code>endloop</code></li>
-                <li><code>call</code>, <code>return</code>, <code>halt</code></li>
-            </ul>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>if pd</code></td><td>Begin conditional block (Threads where pd is false become inactive)</td></tr>
+                    <tr><td><code>else</code></td><td>Switch active/inactive Threads</td></tr>
+                    <tr><td><code>endif</code></td><td>End conditional block (restore original active set)</td></tr>
+                    <tr><td><code>loop</code></td><td>Begin loop</td></tr>
+                    <tr><td><code>break pd</code></td><td>Threads where pd is true exit the loop</td></tr>
+                    <tr><td><code>break !pd</code></td><td>Threads where pd is false exit the loop</td></tr>
+                    <tr><td><code>continue pd</code></td><td>Threads where pd is true skip to next iteration</td></tr>
+                    <tr><td><code>continue !pd</code></td><td>Threads where pd is false skip to next iteration</td></tr>
+                    <tr><td><code>endloop</code></td><td>End loop (branch back to loop if any Threads still active)</td></tr>
+                    <tr><td><code>call &lt;label&gt;</code></td><td>Call function</td></tr>
+                    <tr><td><code>return</code></td><td>Return from function</td></tr>
+                    <tr><td><code>halt</code></td><td>Terminate this Thread</td></tr>
+                </tbody>
+            </table>
 
             <h3 id="section-6-14" class="section-heading"><span class="section-number">6.14</span>Matrix Multiply-Accumulate — OPTIONAL</h3>
             <ul>
@@ -961,6 +1029,11 @@
                         <td>8</td>
                         <td>Maximum function call depth</td>
                     </tr>
+                    <tr>
+                        <td><code>MIN_DIVERGENCE_DEPTH</code></td>
+                        <td>32</td>
+                        <td>Minimum nested control flow depth</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -987,7 +1060,11 @@
             <!-- Section 8: Binary Encoding -->
             <h2 id="section-8" class="section-heading"><span class="section-number">8.</span>Binary Encoding</h2>
 
-            <h3 id="section-8-1" class="section-heading"><span class="section-number">8.1</span>Base Instruction Format (32-bit)</h3>
+            <h3 id="section-8-1" class="section-heading"><span class="section-number">8.1</span>Overview</h3>
+            <p>Instructions are encoded as fixed-width 48-bit (6-byte) words. Some instructions require an additional 32-bit word for immediate values or extended operands (80 bits / 10 bytes total).</p>
+            <p><strong>v0.2 change:</strong> The v0.1 encoding used 32-bit base instructions with 5-bit register fields (max 32 registers). This conflicted with MAX_REGISTERS = 64. The encoding has been widened to 48 bits with 8-bit register fields (max 256 registers).</p>
+
+            <h3 id="section-8-2" class="section-heading"><span class="section-number">8.2</span>Base Instruction Format (48-bit)</h3>
             <table class="spec-table">
                 <thead>
                     <tr>
@@ -998,57 +1075,67 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>[31:26]</td>
+                        <td>[47:40]</td>
                         <td>opcode</td>
-                        <td>6 bits</td>
+                        <td>8 bits — 256 primary opcodes</td>
                     </tr>
                     <tr>
-                        <td>[25:21]</td>
+                        <td>[39:32]</td>
                         <td>rd</td>
-                        <td>5 bits — destination register</td>
+                        <td>8 bits — destination register (0-255)</td>
                     </tr>
                     <tr>
-                        <td>[20:16]</td>
+                        <td>[31:24]</td>
                         <td>rs1</td>
-                        <td>5 bits — source register 1</td>
+                        <td>8 bits — source register 1 (0-255)</td>
                     </tr>
                     <tr>
-                        <td>[15:11]</td>
+                        <td>[23:16]</td>
                         <td>rs2</td>
-                        <td>5 bits — source register 2</td>
+                        <td>8 bits — source register 2 (0-255)</td>
                     </tr>
                     <tr>
-                        <td>[10:8]</td>
+                        <td>[15:12]</td>
                         <td>modifier</td>
-                        <td>3 bits</td>
+                        <td>4 bits — instruction-specific sub-opcode</td>
                     </tr>
                     <tr>
-                        <td>[7:6]</td>
+                        <td>[11:10]</td>
                         <td>scope</td>
-                        <td>2 bits</td>
+                        <td>2 bits — memory scope (00=wave, 01=workgroup, 10=device, 11=system)</td>
                     </tr>
                     <tr>
-                        <td>[5:4]</td>
+                        <td>[9:8]</td>
                         <td>pred</td>
-                        <td>2 bits — predicate register</td>
+                        <td>2 bits — predicate register selector (p0-p3)</td>
                     </tr>
                     <tr>
-                        <td>[3]</td>
+                        <td>[7]</td>
                         <td>pred_neg</td>
-                        <td>1 bit — predicate negation</td>
+                        <td>1 bit — negate predicate (0=normal, 1=negated)</td>
                     </tr>
                     <tr>
-                        <td>[2:0]</td>
+                        <td>[6]</td>
+                        <td>pred_en</td>
+                        <td>1 bit — predication enable (0=unpredicated, 1=predicated)</td>
+                    </tr>
+                    <tr>
+                        <td>[5:0]</td>
                         <td>flags</td>
-                        <td>3 bits</td>
+                        <td>6 bits — instruction-specific</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h3 id="section-8-2" class="section-heading"><span class="section-number">8.2</span>Extended Instruction Format (64-bit)</h3>
-            <p>Word 0: base format with extended flags. Word 1: <code>rs3</code> or <code>imm32</code>.</p>
+            <h3 id="section-8-3" class="section-heading"><span class="section-number">8.3</span>Extended Instruction Format (80-bit)</h3>
+            <p>For instructions requiring a third source register or a 32-bit immediate:</p>
+            <ul>
+                <li><strong>Word 0</strong> (48 bits): Base instruction as above, with flags indicating extended format</li>
+                <li><strong>Word 1</strong> (32 bits): [31:0] rs3 (8 bits) + imm24, or full imm32</li>
+            </ul>
 
-            <h3 id="section-8-3" class="section-heading"><span class="section-number">8.3</span>Opcode Map</h3>
+            <h3 id="section-8-4" class="section-heading"><span class="section-number">8.4</span>Opcode Map</h3>
+            <p>The 8-bit opcode field provides 256 primary opcodes, organized as:</p>
             <table class="spec-table">
                 <thead>
                     <tr>
@@ -1058,67 +1145,329 @@
                 </thead>
                 <tbody>
                     <tr><td>0x00-0x0F</td><td>Integer arithmetic</td></tr>
-                    <tr><td>0x10-0x1F</td><td>Floating-point</td></tr>
+                    <tr><td>0x10-0x1F</td><td>Floating-point arithmetic (F32)</td></tr>
                     <tr><td>0x20-0x27</td><td>Bitwise operations</td></tr>
-                    <tr><td>0x28-0x2F</td><td>Comparison</td></tr>
-                    <tr><td>0x30-0x37</td><td>Local memory</td></tr>
-                    <tr><td>0x38-0x3B</td><td>Device memory</td></tr>
-                    <tr><td>0x3C-0x3D</td><td>Atomic operations</td></tr>
-                    <tr><td>0x3E</td><td>Wave operations</td></tr>
-                    <tr><td>0x3F</td><td>Control flow</td></tr>
+                    <tr><td>0x28-0x2F</td><td>Comparison and select</td></tr>
+                    <tr><td>0x30-0x37</td><td>Local memory operations</td></tr>
+                    <tr><td>0x38-0x3F</td><td>Device memory operations</td></tr>
+                    <tr><td>0x40-0x4F</td><td>Atomic operations</td></tr>
+                    <tr><td>0x50-0x5F</td><td>Wave operations</td></tr>
+                    <tr><td>0x60-0x6F</td><td>Control flow and synchronization</td></tr>
+                    <tr><td>0x70-0x7F</td><td>Type conversion</td></tr>
+                    <tr><td>0x80-0x8F</td><td>F16 arithmetic</td></tr>
+                    <tr><td>0x90-0x9F</td><td>F64 arithmetic (optional)</td></tr>
+                    <tr><td>0xA0-0xAF</td><td>Matrix MMA (optional)</td></tr>
+                    <tr><td>0xB0-0xEF</td><td>Reserved for future extensions</td></tr>
+                    <tr><td>0xF0-0xFF</td><td>Miscellaneous (mov, mov_imm, nop, halt)</td></tr>
                 </tbody>
             </table>
+            <p>See Appendix A for the complete opcode-to-mnemonic mapping.</p>
 
             <!-- Section 9: Conformance -->
             <h2 id="section-9" class="section-heading"><span class="section-number">9.</span>Conformance</h2>
 
             <h3 id="section-9-1" class="section-heading"><span class="section-number">9.1</span>Required Behavior</h3>
-            <p>Compliant implementations <span class="rfc-keyword">MUST</span>:</p>
-            <ul>
-                <li>Support all mandatory instructions</li>
-                <li>Meet all minimum constants</li>
-                <li>Implement memory ordering semantics</li>
-                <li>Implement structured control flow</li>
-                <li>Satisfy all execution guarantees</li>
-                <li>Correctly report capabilities</li>
-            </ul>
+            <p>A compliant implementation <span class="rfc-keyword">MUST</span>:</p>
+            <ol>
+                <li>Support all mandatory instructions (Sections 6.2 through 6.15).</li>
+                <li>Meet or exceed all minimum values in Section 7.1.</li>
+                <li>Implement the memory ordering semantics of Section 4.4.</li>
+                <li>Implement the structured control flow semantics of Section 5.1, including per-Wave control flow state (Section 5.5).</li>
+                <li>Satisfy all execution guarantees of Section 2.5.</li>
+                <li>Correctly report all capabilities of Section 7.2.</li>
+                <li>Support nested control flow to at least MIN_DIVERGENCE_DEPTH levels (Section 5.4).</li>
+            </ol>
 
             <h3 id="section-9-2" class="section-heading"><span class="section-number">9.2</span>Implementation-Defined Behavior</h3>
+            <p>The following behaviors are implementation-defined (valid implementations may differ):</p>
             <ul>
-                <li>Denormal handling</li>
-                <li>Bank conflict penalty</li>
-                <li>Coalescing policy</li>
-                <li>Cache hierarchy</li>
-                <li>Scheduling policy</li>
-                <li>Transcendental precision beyond minimum</li>
-                <li>Out-of-bounds shuffle result</li>
-                <li>Unaligned access behavior</li>
+                <li>Denormal floating-point handling (flush to zero or preserve)</li>
+                <li>Bank conflict penalty in Local Memory</li>
+                <li>Device Memory coalescing policy</li>
+                <li>Cache hierarchy structure, sizes, and policies</li>
+                <li>Scheduling policy for Wave selection</li>
+                <li>Transcendental function precision beyond the specified minimum</li>
+                <li>Out-of-bounds shuffle source lane result</li>
+                <li>Shuffle from inactive source lane result</li>
+                <li>Unaligned memory access behavior</li>
+                <li>Wave scheduling order within a Workgroup</li>
             </ul>
 
             <h3 id="section-9-3" class="section-heading"><span class="section-number">9.3</span>Undefined Behavior</h3>
+            <p>The following constitute undefined behavior (no guarantees):</p>
             <ul>
-                <li>Out-of-bounds Local Memory access</li>
-                <li>Out-of-bounds Device Memory access</li>
-                <li>Using unsupported capabilities</li>
+                <li>Accessing Local Memory outside [0, S)</li>
+                <li>Accessing Device Memory outside allocated regions</li>
+                <li>Using optional capabilities on hardware that does not support them</li>
                 <li>Exceeding MAX_CALL_DEPTH</li>
-                <li>Data races without fencing</li>
-                <li>Infinite loops</li>
+                <li>Exceeding the implementation's maximum divergence depth</li>
+                <li>Data races on Device Memory without proper fencing</li>
+                <li>Infinite loops with no forward progress</li>
+                <li>Barrier inside a divergent control flow path (where threads in a wave disagree on whether to execute the barrier)</li>
+                <li>Integer division by zero</li>
             </ul>
 
             <h3 id="section-9-4" class="section-heading"><span class="section-number">9.4</span>Conformance Testing</h3>
-            <p>A test suite will verify:</p>
-            <ul>
-                <li>Instruction correctness</li>
-                <li>Memory ordering</li>
-                <li>Barrier semantics</li>
-                <li>Atomic correctness</li>
-                <li>Divergent control flow</li>
-                <li>Capability reporting</li>
-            </ul>
+            <p>A reference conformance test suite consisting of 102 tests is provided as a companion artifact in the WAVE toolchain repository. The test suite verifies:</p>
+            <ol>
+                <li>Correct execution of all mandatory instructions, including edge cases (overflow, NaN, infinity)</li>
+                <li>Memory ordering compliance across scopes</li>
+                <li>Barrier semantics with multi-wave workgroups, including barriers inside loops</li>
+                <li>Atomic operation correctness on both local and device memory</li>
+                <li>Structured control flow behavior under divergence, including nested divergence to depth 32</li>
+                <li>Wave operations under divergence (shuffle, ballot, reduce with inactive threads)</li>
+                <li>Capability reporting accuracy</li>
+                <li>Real GPU program correctness (tiled GEMM, parallel reduction, histogram, prefix sum)</li>
+            </ol>
+            <p>An implementation passes conformance if all 102 tests in the mandatory suite produce correct results. The test suite is versioned alongside the specification.</p>
 
             <!-- Appendix A -->
             <h2 id="appendix-a" class="section-heading"><span class="section-number">A.</span>Full Opcode Table</h2>
-            <p>A complete opcode table will be provided in a future revision.</p>
+
+            <h4>Integer Arithmetic (0x00-0x0F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x00</td><td><code>iadd</code></td><td>Base</td><td>rd = rs1 + rs2</td></tr>
+                    <tr><td>0x01</td><td><code>isub</code></td><td>Base</td><td>rd = rs1 - rs2</td></tr>
+                    <tr><td>0x02</td><td><code>imul</code></td><td>Base</td><td>rd = (rs1 * rs2) &amp; 0xFFFFFFFF</td></tr>
+                    <tr><td>0x03</td><td><code>imul_hi</code></td><td>Base</td><td>rd = (rs1 * rs2) &gt;&gt; 32</td></tr>
+                    <tr><td>0x04</td><td><code>imad</code></td><td>Extended</td><td>rd = rs1 * rs2 + rs3</td></tr>
+                    <tr><td>0x05</td><td><code>idiv</code></td><td>Base</td><td>rd = rs1 / rs2</td></tr>
+                    <tr><td>0x06</td><td><code>imod</code></td><td>Base</td><td>rd = rs1 % rs2</td></tr>
+                    <tr><td>0x07</td><td><code>ineg</code></td><td>Base</td><td>rd = -rs1</td></tr>
+                    <tr><td>0x08</td><td><code>iabs</code></td><td>Base</td><td>rd = abs(rs1)</td></tr>
+                    <tr><td>0x09</td><td><code>imin</code></td><td>Base</td><td>rd = min(rs1, rs2) (signed)</td></tr>
+                    <tr><td>0x0A</td><td><code>imax</code></td><td>Base</td><td>rd = max(rs1, rs2) (signed)</td></tr>
+                    <tr><td>0x0B</td><td><code>iclamp</code></td><td>Extended</td><td>rd = clamp(rs1, rs2, rs3)</td></tr>
+                    <tr><td>0x0C</td><td><code>umin</code></td><td>Base</td><td>rd = min(rs1, rs2) (unsigned)</td></tr>
+                    <tr><td>0x0D</td><td><code>umax</code></td><td>Base</td><td>rd = max(rs1, rs2) (unsigned)</td></tr>
+                    <tr><td>0x0E-0x0F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Floating-Point Arithmetic F32 (0x10-0x1F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x10</td><td><code>fadd</code></td><td>Base</td><td>rd = rs1 + rs2</td></tr>
+                    <tr><td>0x11</td><td><code>fsub</code></td><td>Base</td><td>rd = rs1 - rs2</td></tr>
+                    <tr><td>0x12</td><td><code>fmul</code></td><td>Base</td><td>rd = rs1 * rs2</td></tr>
+                    <tr><td>0x13</td><td><code>fma</code></td><td>Extended</td><td>rd = rs1 * rs2 + rs3</td></tr>
+                    <tr><td>0x14</td><td><code>fdiv</code></td><td>Base</td><td>rd = rs1 / rs2</td></tr>
+                    <tr><td>0x15</td><td><code>fneg</code></td><td>Base</td><td>rd = -rs1</td></tr>
+                    <tr><td>0x16</td><td><code>fabs</code></td><td>Base</td><td>rd = abs(rs1)</td></tr>
+                    <tr><td>0x17</td><td><code>fmin</code></td><td>Base</td><td>rd = min(rs1, rs2)</td></tr>
+                    <tr><td>0x18</td><td><code>fmax</code></td><td>Base</td><td>rd = max(rs1, rs2)</td></tr>
+                    <tr><td>0x19</td><td><code>fclamp</code></td><td>Extended</td><td>rd = clamp(rs1, rs2, rs3)</td></tr>
+                    <tr><td>0x1A</td><td><code>fsqrt</code></td><td>Base</td><td>rd = sqrt(rs1)</td></tr>
+                    <tr><td>0x1B</td><td><code>frsqrt</code></td><td>Base</td><td>rd = 1/sqrt(rs1)</td></tr>
+                    <tr><td>0x1C</td><td><code>frcp</code></td><td>Base</td><td>rd = 1/rs1</td></tr>
+                    <tr><td>0x1D</td><td><code>fround</code></td><td>Base</td><td>modifier: 0=floor, 1=ceil, 2=round, 3=trunc</td></tr>
+                    <tr><td>0x1E</td><td><code>ffract</code></td><td>Base</td><td>rd = fract(rs1)</td></tr>
+                    <tr><td>0x1F</td><td><code>ftransc</code></td><td>Base</td><td>modifier: 0=sin, 1=cos, 2=exp2, 3=log2</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Bitwise Operations (0x20-0x27)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x20</td><td><code>and</code></td><td>Base</td><td>rd = rs1 &amp; rs2</td></tr>
+                    <tr><td>0x21</td><td><code>or</code></td><td>Base</td><td>rd = rs1 | rs2</td></tr>
+                    <tr><td>0x22</td><td><code>xor</code></td><td>Base</td><td>rd = rs1 ^ rs2</td></tr>
+                    <tr><td>0x23</td><td><code>not</code></td><td>Base</td><td>rd = ~rs1</td></tr>
+                    <tr><td>0x24</td><td><code>shift</code></td><td>Base</td><td>modifier: 0=shl, 1=shr, 2=sar</td></tr>
+                    <tr><td>0x25</td><td><code>bitop</code></td><td>Base</td><td>modifier: 0=bitcount, 1=bitfind, 2=bitrev</td></tr>
+                    <tr><td>0x26</td><td><code>bfe</code></td><td>Extended</td><td>Extract bit field</td></tr>
+                    <tr><td>0x27</td><td><code>bfi</code></td><td>Extended</td><td>Insert bit field</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Comparison and Select (0x28-0x2F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x28</td><td><code>icmp</code></td><td>Base</td><td>modifier: 0=eq, 1=ne, 2=lt, 3=le, 4=gt, 5=ge</td></tr>
+                    <tr><td>0x29</td><td><code>ucmp</code></td><td>Base</td><td>modifier: 0=lt, 1=le</td></tr>
+                    <tr><td>0x2A</td><td><code>fcmp</code></td><td>Base</td><td>modifier: 0=eq, 1=lt, 2=le, 3=gt, 4=ne, 5=ord, 6=unord</td></tr>
+                    <tr><td>0x2B</td><td><code>select</code></td><td>Base</td><td>rd = pred ? rs1 : rs2</td></tr>
+                    <tr><td>0x2C</td><td><code>fsat</code></td><td>Base</td><td>rd = clamp(rs1, 0.0, 1.0)</td></tr>
+                    <tr><td>0x2D-0x2F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Local Memory (0x30-0x37)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x30</td><td><code>local_load</code></td><td>Base</td><td>modifier: 0=u8, 1=u16, 2=u32, 3=u64</td></tr>
+                    <tr><td>0x31</td><td><code>local_store</code></td><td>Base</td><td>modifier: 0=u8, 1=u16, 2=u32, 3=u64</td></tr>
+                    <tr><td>0x32-0x37</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Device Memory (0x38-0x3F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x38</td><td><code>device_load</code></td><td>Base</td><td>modifier: 0=u8, 1=u16, 2=u32, 3=u64, 4=u128</td></tr>
+                    <tr><td>0x39</td><td><code>device_store</code></td><td>Base</td><td>modifier: 0=u8, 1=u16, 2=u32, 3=u64, 4=u128</td></tr>
+                    <tr><td>0x3A-0x3F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Atomic Operations (0x40-0x4F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x40</td><td><code>atomic_add</code></td><td>Extended</td><td>Atomic add (scope in scope field)</td></tr>
+                    <tr><td>0x41</td><td><code>atomic_sub</code></td><td>Extended</td><td>Atomic subtract</td></tr>
+                    <tr><td>0x42</td><td><code>atomic_min</code></td><td>Extended</td><td>Atomic minimum</td></tr>
+                    <tr><td>0x43</td><td><code>atomic_max</code></td><td>Extended</td><td>Atomic maximum</td></tr>
+                    <tr><td>0x44</td><td><code>atomic_and</code></td><td>Extended</td><td>Atomic bitwise AND</td></tr>
+                    <tr><td>0x45</td><td><code>atomic_or</code></td><td>Extended</td><td>Atomic bitwise OR</td></tr>
+                    <tr><td>0x46</td><td><code>atomic_xor</code></td><td>Extended</td><td>Atomic bitwise XOR</td></tr>
+                    <tr><td>0x47</td><td><code>atomic_exchange</code></td><td>Extended</td><td>Atomic swap</td></tr>
+                    <tr><td>0x48</td><td><code>atomic_cas</code></td><td>Extended</td><td>Compare-and-swap</td></tr>
+                    <tr><td>0x49-0x4F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Wave Operations (0x50-0x5F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x50</td><td><code>wave_shuffle</code></td><td>Base</td><td>rd = rs1 from lane rs2</td></tr>
+                    <tr><td>0x51</td><td><code>wave_shuffle_up</code></td><td>Base</td><td>rd = rs1 from lane (lane_id - rs2)</td></tr>
+                    <tr><td>0x52</td><td><code>wave_shuffle_down</code></td><td>Base</td><td>rd = rs1 from lane (lane_id + rs2)</td></tr>
+                    <tr><td>0x53</td><td><code>wave_shuffle_xor</code></td><td>Base</td><td>rd = rs1 from lane (lane_id ^ rs2)</td></tr>
+                    <tr><td>0x54</td><td><code>wave_broadcast</code></td><td>Base</td><td>rd = rs1 from lane rs2 (all threads)</td></tr>
+                    <tr><td>0x55</td><td><code>wave_ballot</code></td><td>Base</td><td>rd = bitmask of pd across active threads</td></tr>
+                    <tr><td>0x56</td><td><code>wave_any</code></td><td>Base</td><td>pd_dst = any active thread has pd_src true</td></tr>
+                    <tr><td>0x57</td><td><code>wave_all</code></td><td>Base</td><td>pd_dst = all active threads have pd_src true</td></tr>
+                    <tr><td>0x58</td><td><code>wave_prefix_sum</code></td><td>Base</td><td>Exclusive prefix sum</td></tr>
+                    <tr><td>0x59</td><td><code>wave_reduce</code></td><td>Base</td><td>modifier: 0=add, 1=min, 2=max</td></tr>
+                    <tr><td>0x5A-0x5F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Control Flow and Synchronization (0x60-0x6F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x60</td><td><code>if</code></td><td>Base</td><td>Begin conditional block</td></tr>
+                    <tr><td>0x61</td><td><code>else</code></td><td>Base</td><td>Switch active/inactive</td></tr>
+                    <tr><td>0x62</td><td><code>endif</code></td><td>Base</td><td>End conditional, restore mask</td></tr>
+                    <tr><td>0x63</td><td><code>loop</code></td><td>Base</td><td>Begin loop</td></tr>
+                    <tr><td>0x64</td><td><code>break</code></td><td>Base</td><td>Exit loop for predicated threads</td></tr>
+                    <tr><td>0x65</td><td><code>continue</code></td><td>Base</td><td>Skip to next iteration for predicated threads</td></tr>
+                    <tr><td>0x66</td><td><code>endloop</code></td><td>Base</td><td>End loop, branch back if any active</td></tr>
+                    <tr><td>0x67</td><td><code>call</code></td><td>Extended</td><td>Call function at imm32 address</td></tr>
+                    <tr><td>0x68</td><td><code>return</code></td><td>Base</td><td>Return from function</td></tr>
+                    <tr><td>0x69</td><td><code>barrier</code></td><td>Base</td><td>Workgroup barrier</td></tr>
+                    <tr><td>0x6A</td><td><code>fence</code></td><td>Base</td><td>modifier: 0=acquire, 1=release, 2=acq_rel</td></tr>
+                    <tr><td>0x6B</td><td><code>wait</code></td><td>Base</td><td>Wait for async loads</td></tr>
+                    <tr><td>0x6C</td><td><code>halt</code></td><td>Base</td><td>Terminate thread</td></tr>
+                    <tr><td>0x6D-0x6F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Type Conversion (0x70-0x7F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x70</td><td><code>cvt_f32_i32</code></td><td>Base</td><td>Signed int to float</td></tr>
+                    <tr><td>0x71</td><td><code>cvt_f32_u32</code></td><td>Base</td><td>Unsigned int to float</td></tr>
+                    <tr><td>0x72</td><td><code>cvt_i32_f32</code></td><td>Base</td><td>Float to signed int</td></tr>
+                    <tr><td>0x73</td><td><code>cvt_u32_f32</code></td><td>Base</td><td>Float to unsigned int</td></tr>
+                    <tr><td>0x74</td><td><code>cvt_f32_f16</code></td><td>Base</td><td>F16 to F32</td></tr>
+                    <tr><td>0x75</td><td><code>cvt_f16_f32</code></td><td>Base</td><td>F32 to F16</td></tr>
+                    <tr><td>0x76</td><td><code>cvt_f32_f64</code></td><td>Base</td><td>F64 to F32 (requires CAP_F64)</td></tr>
+                    <tr><td>0x77</td><td><code>cvt_f64_f32</code></td><td>Base</td><td>F32 to F64 (requires CAP_F64)</td></tr>
+                    <tr><td>0x78-0x7F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>F16 Arithmetic (0x80-0x8F)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x80</td><td><code>hadd</code></td><td>Base</td><td>F16 add</td></tr>
+                    <tr><td>0x81</td><td><code>hsub</code></td><td>Base</td><td>F16 subtract</td></tr>
+                    <tr><td>0x82</td><td><code>hmul</code></td><td>Base</td><td>F16 multiply</td></tr>
+                    <tr><td>0x83</td><td><code>hma</code></td><td>Extended</td><td>F16 fused multiply-add</td></tr>
+                    <tr><td>0x84</td><td><code>hadd2</code></td><td>Base</td><td>Packed 2xF16 add</td></tr>
+                    <tr><td>0x85</td><td><code>hmul2</code></td><td>Base</td><td>Packed 2xF16 multiply</td></tr>
+                    <tr><td>0x86</td><td><code>hma2</code></td><td>Extended</td><td>Packed 2xF16 fused multiply-add</td></tr>
+                    <tr><td>0x87-0x8F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>F64 Arithmetic (0x90-0x9F) — Requires CAP_F64</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0x90</td><td><code>dadd</code></td><td>Base</td><td>F64 add</td></tr>
+                    <tr><td>0x91</td><td><code>dsub</code></td><td>Base</td><td>F64 subtract</td></tr>
+                    <tr><td>0x92</td><td><code>dmul</code></td><td>Base</td><td>F64 multiply</td></tr>
+                    <tr><td>0x93</td><td><code>dma</code></td><td>Extended</td><td>F64 fused multiply-add</td></tr>
+                    <tr><td>0x94</td><td><code>ddiv</code></td><td>Base</td><td>F64 divide</td></tr>
+                    <tr><td>0x95</td><td><code>dsqrt</code></td><td>Base</td><td>F64 square root</td></tr>
+                    <tr><td>0x96-0x9F</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Matrix MMA (0xA0-0xAF) — Requires CAP_MMA</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0xA0</td><td><code>mma_f16_f32</code></td><td>Extended</td><td>D = A*B+C, A/B F16, C/D F32</td></tr>
+                    <tr><td>0xA1</td><td><code>mma_bf16_f32</code></td><td>Extended</td><td>D = A*B+C, A/B BF16, C/D F32</td></tr>
+                    <tr><td>0xA2</td><td><code>mma_f32_f32</code></td><td>Extended</td><td>D = A*B+C, all F32</td></tr>
+                    <tr><td>0xA3-0xAF</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Miscellaneous (0xF0-0xFF)</h4>
+            <table class="spec-table">
+                <thead>
+                    <tr><th>Opcode</th><th>Mnemonic</th><th>Format</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0xF0</td><td><code>mov</code></td><td>Base</td><td>rd = rs1</td></tr>
+                    <tr><td>0xF1</td><td><code>mov_imm</code></td><td>Extended</td><td>rd = imm32</td></tr>
+                    <tr><td>0xF2</td><td><code>mov_special</code></td><td>Base</td><td>rd = special register (rs1 encodes which)</td></tr>
+                    <tr><td>0xF3</td><td><code>nop</code></td><td>Base</td><td>No operation</td></tr>
+                    <tr><td>0xF4-0xFF</td><td>Reserved</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
 
             <!-- Appendix B: Vendor Mapping -->
             <h2 id="appendix-b" class="section-heading"><span class="section-number">B.</span>Vendor Mapping Reference</h2>
@@ -1216,14 +1565,19 @@
                     <tr>
                         <th>Version</th>
                         <th>Date</th>
-                        <th>Description</th>
+                        <th>Changes</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>0.1</td>
                         <td>2026-03-22</td>
-                        <td>Initial working draft</td>
+                        <td>Initial draft</td>
+                    </tr>
+                    <tr>
+                        <td>0.2</td>
+                        <td>2026-03-23</td>
+                        <td>Register encoding widened to 8-bit; minimum divergence depth specified (32); predicate negation on break/continue clarified; per-Wave control flow state required; full opcode table added; deterministic execution guarantee added; barrier divergence restriction documented; integer overflow and division semantics specified; conformance test suite (102 tests) referenced</td>
                     </tr>
                 </tbody>
             </table>

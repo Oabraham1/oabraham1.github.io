@@ -1432,14 +1432,14 @@
                   <h3 class="spec-title">The WAVE Specification</h3>
                   <p style="margin-top: 0.25rem; color: var(--text-secondary); font-style: italic;">Wide Architecture Virtual Encoding</p>
                 </div>
-                <span class="version-badge"><span class="status-dot"></span>v0.1 — Working Draft</span>
+                <span class="version-badge"><span class="status-dot"></span>v0.2 — Working Draft (Revised)</span>
               </div>
               <p class="spec-abstract">
-                A vendor-neutral instruction set architecture for general-purpose GPU computation. Defines an abstract execution model, register model, memory model, structured control flow, and instruction set derived from eleven hardware-invariant primitives identified across NVIDIA, AMD, Intel, and Apple GPU architectures spanning 16 microarchitectures. Follows the thin abstraction principle: defines what a compliant implementation must do, not how.
+                A vendor-neutral instruction set architecture for general-purpose GPU computation. Defines an abstract execution model, register model, memory model, structured control flow, and instruction set derived from eleven hardware-invariant primitives identified across NVIDIA, AMD, Intel, and Apple GPU architectures spanning 16 microarchitectures. Follows the thin abstraction principle: defines what a compliant implementation must do, not how. Validated by a reference implementation with 102 passing conformance tests.
               </p>
               <div class="spec-meta">
                 <span class="meta-pill">Status: Working Draft</span>
-                <span class="meta-pill">Last Updated: March 22, 2026</span>
+                <span class="meta-pill">Last Updated: March 23, 2026</span>
                 <span class="meta-pill">License: Apache 2.0</span>
                 <span class="meta-pill">Authors: Ojima Abraham, Onyinye Okoli</span>
               </div>
@@ -1457,6 +1457,7 @@
                 <a class="sub" href="spec.html#section-1-2"><strong>1.2</strong> Scope</a>
                 <a class="sub" href="spec.html#section-1-3"><strong>1.3</strong> Design Principles</a>
                 <a class="sub" href="spec.html#section-1-4"><strong>1.4</strong> Relationship to Other Standards</a>
+                <a class="sub" href="spec.html#section-1-5"><strong>1.5</strong> Changes from v0.1</a>
                 <a href="spec.html#section-2"><strong>2.</strong> Execution Model</a>
                 <a class="sub" href="spec.html#section-2-1"><strong>2.1</strong> Overview</a>
                 <a class="sub" href="spec.html#section-2-2"><strong>2.2</strong> Thread Hierarchy</a>
@@ -1481,6 +1482,8 @@
                 <a class="sub" href="spec.html#section-5-1"><strong>5.1</strong> Structured Control Flow</a>
                 <a class="sub" href="spec.html#section-5-2"><strong>5.2</strong> Uniform Branches</a>
                 <a class="sub" href="spec.html#section-5-3"><strong>5.3</strong> Divergence and Reconvergence</a>
+                <a class="sub" href="spec.html#section-5-4"><strong>5.4</strong> Minimum Divergence Depth</a>
+                <a class="sub" href="spec.html#section-5-5"><strong>5.5</strong> Per-Wave Control Flow State</a>
                 <a href="spec.html#section-6"><strong>6.</strong> Instruction Set</a>
                 <a class="sub" href="spec.html#section-6-1"><strong>6.1</strong> Integer Arithmetic</a>
                 <a class="sub" href="spec.html#section-6-2"><strong>6.2</strong> Bitwise Operations</a>
@@ -1502,9 +1505,10 @@
                 <a class="sub" href="spec.html#section-7-3"><strong>7.3</strong> Matrix MMA Parameters</a>
                 <a class="sub" href="spec.html#section-7-4"><strong>7.4</strong> Query Mechanism</a>
                 <a href="spec.html#section-8"><strong>8.</strong> Binary Encoding</a>
-                <a class="sub" href="spec.html#section-8-1"><strong>8.1</strong> Base Instruction Format (32-bit)</a>
-                <a class="sub" href="spec.html#section-8-2"><strong>8.2</strong> Extended Instruction Format (64-bit)</a>
-                <a class="sub" href="spec.html#section-8-3"><strong>8.3</strong> Opcode Map</a>
+                <a class="sub" href="spec.html#section-8-1"><strong>8.1</strong> Overview</a>
+                <a class="sub" href="spec.html#section-8-2"><strong>8.2</strong> Base Instruction Format (48-bit)</a>
+                <a class="sub" href="spec.html#section-8-3"><strong>8.3</strong> Extended Instruction Format (80-bit)</a>
+                <a class="sub" href="spec.html#section-8-4"><strong>8.4</strong> Opcode Map</a>
                 <a href="spec.html#section-9"><strong>9.</strong> Conformance</a>
                 <a class="sub" href="spec.html#section-9-1"><strong>9.1</strong> Required Behavior</a>
                 <a class="sub" href="spec.html#section-9-2"><strong>9.2</strong> Implementation-Defined Behavior</a>
